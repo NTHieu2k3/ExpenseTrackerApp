@@ -1,9 +1,10 @@
 import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
 import { useState } from "react";
-
-import AuthForm from "./AuthForm";
 import { GlobalStyles } from "../../constants/styles";
 import { useNavigation } from "@react-navigation/native";
+
+import AuthForm from "./AuthForm";
+import ForgotPasswordForm from "../../screens/Auth/ForgotPassForm";
 
 function AuthContent({ isLogin, onAuthenticate }) {
   const [credentialIsInvalid, setCredentialIsInvalid] = useState({
@@ -13,9 +14,15 @@ function AuthContent({ isLogin, onAuthenticate }) {
     confirmPassword: false,
   });
 
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
+
   const navigation = useNavigation();
 
   function switchAuthModeHandler() {
+    if (isForgotPassword) {
+      setIsForgotPassword(false);
+      return;
+    }
     if (isLogin) {
       navigation.replace("Signup");
     } else {
@@ -60,11 +67,29 @@ function AuthContent({ isLogin, onAuthenticate }) {
           : "Create an account to get started."}
       </Text>
       <View style={styles.authContent}>
-        <AuthForm
-          isLogin={isLogin}
-          onSubmit={submitHandler}
-          credentialsInvalid={credentialIsInvalid}
-        />
+        {isForgotPassword ? (
+          <ForgotPasswordForm onBack={() => setIsForgotPassword(false)} />
+        ) : (
+          <AuthForm
+            isLogin={isLogin}
+            onSubmit={submitHandler}
+            credentialsInvalid={credentialIsInvalid}
+          />
+        )}
+        {isLogin && !isForgotPassword && (
+          <View style={styles.forgotPassword}>
+            <Pressable
+              style={({ pressed }) => [
+                styles.button,
+                pressed && styles.pressed,
+              ]}
+              onPress={() => setIsForgotPassword(true)}
+            >
+              <Text style={styles.forgotText}>Forgot Password?</Text>
+            </Pressable>
+          </View>
+        )}
+
         <View style={styles.switchButton}>
           <Pressable
             style={({ pressed }) => [styles.button, pressed && styles.pressed]}
@@ -72,7 +97,11 @@ function AuthContent({ isLogin, onAuthenticate }) {
           >
             <View>
               <Text style={styles.switchText}>
-                {isLogin ? "Create a new account" : "Log in instead"}
+                {isForgotPassword
+                  ? "Back to Login"
+                  : isLogin
+                  ? "Create a new account"
+                  : "Log in instead"}
               </Text>
             </View>
           </Pressable>
@@ -122,6 +151,7 @@ const styles = StyleSheet.create({
   switchButton: {
     paddingHorizontal: 16,
     alignSelf: "center",
+    marginTop: 20,
   },
 
   switchText: {
@@ -129,6 +159,17 @@ const styles = StyleSheet.create({
     color: GlobalStyles.colors.primary100,
     fontSize: 16,
     fontWeight: "bold",
+    textDecorationLine: "underline",
+  },
+
+  forgotPassword: {
+    marginTop: 12,
+    alignSelf: "center",
+  },
+
+  forgotText: {
+    color: GlobalStyles.colors.primary100,
+    fontSize: 14,
     textDecorationLine: "underline",
   },
 

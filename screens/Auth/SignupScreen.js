@@ -16,7 +16,7 @@ function SignupScreen() {
     try {
       await createAccount(email, password);
       Alert.alert("Success", "Your account has been created successfully.", [
-        { text: "OK", onPress: () => navigation.replace("Login") },
+        { text: "OK", onPress: () => navigation.nav("Login") },
       ]);
       return;
     } catch (error) {

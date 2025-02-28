@@ -1,9 +1,14 @@
 import axios from "axios";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const BACKEND_URL =
   "https://quanlychitieuapp-f9526-default-rtdb.firebaseio.com";
 
 const API_KEY = "AIzaSyCoRmYnDnHXOhKfT1_p4M1rpfH9kWt8Hps";
+
+const GEMINI_API_KEY = "AIzaSyA5OwpXqow_NanA_u2YO6CNvktmXX2ppSE";
+const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+
 export async function storeExpense(expenseData, token, uid) {
   console.log("storeExpense - UID:", uid);
   const response = await axios.post(
@@ -69,4 +74,70 @@ export function createAccount(email, password) {
 
 export function login(email, password) {
   return authenticate("signInWithPassword", email, password);
+}
+
+export async function changePassword(idToken, newPassword) {
+  const url = `https://identitytoolkit.googleapis.com/v1/accounts:update?key=${API_KEY}`;
+  await axios.post(url, {
+    idToken: idToken,
+    password: newPassword,
+    returnSecureToken: false,
+  });
+}
+
+export async function checkEmailExists(email) {
+  try {
+    await axios.post(
+      `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${API_KEY}`,
+      {
+        email: email,
+        password: "randomWrongPassword",
+        returnSecureToken: true,
+      }
+    );
+    return true;
+  } catch (error) {
+    return error.response?.data?.error?.message !== "EMAIL_NOT_FOUND";
+  }
+}
+
+export async function resetPassword(email) {
+  const url = `https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${API_KEY}`;
+
+  try {
+    await axios.post(url, { requestType: "PASSWORD_RESET", email: email });
+  } catch (error) {
+    console.log("resetPassword Error:", error.response?.data?.error?.message);
+    throw error;
+  }
+}
+
+export async function reauthenticateUser(email, oldPassword) {
+  const url = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${API_KEY}`;
+  try {
+    const response = await axios.post(url, {
+      email: email,
+      password: oldPassword,
+      returnSecureToken: true,
+    });
+    return response.data.idToken;
+  } catch (error) {
+    console.error(
+      "Re-authentication failed:",
+      error.response?.data?.error?.message
+    );
+    return null; // Xác thực thất bại
+  }
+}
+
+export async function support(prompt) {
+  try {
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    return response.text();
+  } catch (error) {
+    console.error("Gemini API Error:", error.message);
+    return "Your assistant is not available. Please try again late !  ";
+  }
 }

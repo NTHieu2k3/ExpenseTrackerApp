@@ -3,12 +3,14 @@ import { Ionicons } from "@expo/vector-icons";
 import { GlobalStyles } from "../constants/styles";
 import { useContext, useState } from "react";
 import { AuthContex } from "../store/auth-contex";
+import { useNavigation } from "@react-navigation/native";
 
 import LoadingOverlay from "../components/UI/LoadingOverlay";
 
 function ProfileUser() {
   const authCtx = useContext(AuthContex);
   const [isLoading, setIsLoading] = useState(false);
+  const navigation = useNavigation();
 
   function logoutHandler() {
     setIsLoading(true);
@@ -24,17 +26,6 @@ function ProfileUser() {
 
   return (
     <View style={styles.container}>
-      <Pressable
-        style={({ pressed }) => [styles.item, pressed && styles.pressed]}
-        onPress={logoutHandler}
-      >
-        <View style={styles.row}>
-          <Ionicons name="log-out-outline" size={24} color="white" />
-          <Text style={styles.text}>Log Out</Text>
-          <Ionicons name="chevron-forward-outline" size={24} color="white" />
-        </View>
-      </Pressable>
-
       <Pressable
         style={({ pressed }) => [styles.item, pressed && styles.pressed]}
         onPress={() => {}}
@@ -53,6 +44,28 @@ function ProfileUser() {
         <View style={styles.row}>
           <Ionicons name="settings-outline" size={24} color="white" />
           <Text style={styles.text}>Settings</Text>
+          <Ionicons name="chevron-forward-outline" size={24} color="white" />
+        </View>
+      </Pressable>
+
+      <Pressable
+        style={({ pressed }) => [styles.item, pressed && styles.pressed]}
+        onPress={() => navigation.navigate("ChangePassword")}
+      >
+        <View style={styles.row}>
+          <Ionicons name="lock-closed-outline" size={24} color="white" />
+          <Text style={styles.text}>Change Password</Text>
+          <Ionicons name="chevron-forward-outline" size={24} color="white" />
+        </View>
+      </Pressable>
+
+      <Pressable
+        style={({ pressed }) => [styles.item, pressed && styles.pressed]}
+        onPress={logoutHandler}
+      >
+        <View style={styles.row}>
+          <Ionicons name="log-out-outline" size={24} color="white" />
+          <Text style={styles.text}>Log Out</Text>
           <Ionicons name="chevron-forward-outline" size={24} color="white" />
         </View>
       </Pressable>

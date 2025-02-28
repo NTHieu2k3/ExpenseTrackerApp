@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import { NavigationContainer } from "@react-navigation/native";
+import { NavigationContainer, useNavigation } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { GlobalStyles } from "./constants/styles";
@@ -18,20 +18,23 @@ import LoginScreen from "./screens/Auth/LoginScreen";
 import SignupScreen from "./screens/Auth/SignupScreen";
 import AuthContexProvider, { AuthContex } from "./store/auth-contex";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import ChangePassScreen from "./screens/Auth/ChangePassScreen";
+import SupportScreen from "./screens/SupportScreen";
 
 const Stack = createNativeStackNavigator();
 const BottomTabs = createBottomTabNavigator();
 
 function ExpensesOverview() {
+  const navigation = useNavigation();
   return (
     <BottomTabs.Navigator
-      screenOptions={({ navigation, route }) => ({
+      screenOptions={({ route }) => ({
         headerStyle: { backgroundColor: GlobalStyles.colors.primary500 },
         headerTintColor: "white",
         tabBarStyle: { backgroundColor: GlobalStyles.colors.primary500 },
         tabBarActiveTintColor: GlobalStyles.colors.accent500,
         headerRight: ({ tintColor }) =>
-          route.name !== "ProfileUser" ? (
+          route.name !== "ProfileUser" && (
             <IconButton
               icon="add"
               size={30}
@@ -40,7 +43,18 @@ function ExpensesOverview() {
                 navigation.navigate("ManageExpense");
               }}
             />
-          ) : null,
+          ),
+        headerLeft: ({ tintColor }) =>
+          route.name !== "ProfileUser" && (
+            <IconButton
+              icon="chatbox-ellipses-outline"
+              size={30}
+              color={tintColor}
+              onPress={() => {
+                navigation.navigate("SupportScreen");
+              }}
+            />
+          ),
       })}
     >
       <BottomTabs.Screen
@@ -136,6 +150,12 @@ function AuthenticatedStack() {
         options={{
           presentation: "modal",
         }}
+      />
+      <Stack.Screen name="ChangePassword" component={ChangePassScreen} />
+      <Stack.Screen
+        name="SupportScreen"
+        component={SupportScreen}
+        options={{ presentation: "modal", title: "Personal Assistant" }}
       />
     </Stack.Navigator>
   );

@@ -20,6 +20,7 @@ import AuthContexProvider, { AuthContex } from "./store/auth-contex";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ChangePassScreen from "./screens/Auth/ChangePassScreen";
 import SupportScreen from "./screens/SupportScreen";
+import WelcomeScreen from "./screens/WelcomScreen";
 
 const Stack = createNativeStackNavigator();
 const BottomTabs = createBottomTabNavigator();
@@ -139,6 +140,11 @@ function AuthenticatedStack() {
         headerTintColor: "white",
       }}
     >
+      <Stack.Screen
+        name="Welcome"
+        component={WelcomeScreen}
+        options={{ headerShown: false }}
+      />
       <Stack.Screen
         name="ExpensesOverview"
         component={ExpensesOverview}

@@ -9,6 +9,30 @@ const API_KEY = "AIzaSyCoRmYnDnHXOhKfT1_p4M1rpfH9kWt8Hps";
 const GEMINI_API_KEY = "AIzaSyA5OwpXqow_NanA_u2YO6CNvktmXX2ppSE";
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
+export async function storeMonthlySalary(token, salary, savingsGoal, uid) {
+  console.log("storeMonthlySalary - UID:", uid);
+  await axios.put(
+    `${BACKEND_URL}/monthlySalary/${uid}.json?auth=${token}`,
+    { salary, savingsGoal }
+  );
+}
+
+export async function fetchMonthlySalary(token, uid) {
+  console.log("fetchMonthlySalary - UID:", uid);
+  const response = await axios.get(
+    `${BACKEND_URL}/monthlySalary/${uid}.json?auth=${token}`
+  );
+
+  if (!response.data) {
+    return { salary: null, savingsGoal: null };
+  }
+
+  return {
+    salary: response.data.salary || 0,
+    savingsGoal: response.data.savingsGoal || 0
+  };
+}
+
 export async function storeExpense(expenseData, token, uid) {
   console.log("storeExpense - UID:", uid);
   const response = await axios.post(

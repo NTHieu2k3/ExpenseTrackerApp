@@ -1,12 +1,13 @@
 import React, { useContext, useEffect, useState } from "react";
 import { AuthContex } from "../store/auth-contex";
-import { fetchExpenses } from "../util/http";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
-import { BarChart } from "react-native-gifted-charts";
+import { fetchExpenses, fetchMonthlySalary } from "../util/http";
+import { SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
+import { BarChart, PieChart } from "react-native-gifted-charts";
 import { GlobalStyles } from "../constants/styles";
 import { ExpensesContex } from "../store/expenses-contex";
+import { useFocusEffect } from "@react-navigation/native";
+
 import IconButton from "../components/UI/IconButton";
-import { useFocusEffect } from "@react-navigation/native"; // Import useFocusEffect
 import ExpensesOutput from "../components/ExpensesOutput/ExpensesOutput";
 
 function ChartExpenses({ refresh }) {
@@ -20,6 +21,111 @@ function ChartExpenses({ refresh }) {
   const [selectedWeek, setSelectedWeek] = useState(0);
   const [displayTitle, setDisplayTitle] = useState("");
   const [error, setError] = useState(null);
+  const [spendingBudget, setSpendingBudget] = useState(0);
+  const [totalExpenses, setTotalExpenses] = useState(0);
+  const [totalSavings, setTotalSavings] = useState(0);
+  const [totalRemaining, setTotalRemaining] = useState(0);
+
+  const [pieChartData, setPieChartData] = useState([
+    { value: 0, color: GlobalStyles.colors.primary500, text: "Chi tiêu" },
+    { value: 0, color: GlobalStyles.colors.success500, text: "Còn dư" },
+  ]);
+
+  const filteredExpenses = filterExpenses(expenses);
+
+  useEffect(() => {
+    async function getIncome() {
+      try {
+        const salaryData = await fetchMonthlySalary(authCtx.token, authCtx.uid);
+        let computedIncome, computedSavings, spendingBudget;
+
+        if (filterType === "week") {
+          computedIncome = salaryData.salary / 4;
+          computedSavings = salaryData.savingsGoal / 4;
+        } else if (filterType === "year") {
+          computedIncome = salaryData.salary * 12;
+          computedSavings = salaryData.savingsGoal * 12;
+        } else {
+          computedIncome = salaryData.salary;
+          computedSavings = salaryData.savingsGoal;
+        }
+
+        spendingBudget = Math.round(computedIncome - computedSavings);
+        setSpendingBudget(spendingBudget);
+
+        const totalExpense = filteredExpenses.reduce(
+          (sum, expense) => sum + expense.amount,
+          0
+        );
+
+        let remainingAmount = spendingBudget - totalExpense;
+
+        if (remainingAmount < 0) {
+          let deficit = Math.abs(remainingAmount);
+          if (computedSavings >= deficit) {
+            computedSavings = Math.round(computedSavings - deficit);
+            remainingAmount = 0;
+          } else {
+            remainingAmount = 0;
+            computedSavings = 0;
+          }
+        } else {
+          remainingAmount = Math.round(remainingAmount);
+        }
+
+        setTotalExpenses(totalExpense);
+        setTotalSavings(computedSavings);
+        setTotalRemaining(remainingAmount);
+
+        let totalUsed = totalExpense + computedSavings + remainingAmount;
+        let expensesPercentage = Math.round((totalExpense / totalUsed) * 100);
+        let savingsPercentage = Math.round((computedSavings / totalUsed) * 100);
+        let remainingPercentage = Math.round(
+          (remainingAmount / totalUsed) * 100
+        );
+
+        console.log("spendingBudget:", spendingBudget);
+        console.log("totalExpense:", totalExpense);
+        console.log("computedSavings:", computedSavings);
+        console.log("remainingAmount:", remainingAmount);
+
+        const updatedPieChartData = [];
+
+        if (expensesPercentage > 0) {
+          updatedPieChartData.push({
+            value: expensesPercentage,
+            color: GlobalStyles.colors.primary500,
+            text: `${expensesPercentage}%`,
+            tooltipText: "Spending",
+          });
+        }
+
+        if (remainingPercentage > 0) {
+          updatedPieChartData.push({
+            value: remainingPercentage,
+            color: GlobalStyles.colors.success500,
+            text: `${remainingPercentage}%`,
+            tooltipText: "Remaining",
+          });
+        }
+
+        if (savingsPercentage > 0) {
+          updatedPieChartData.push({
+            value: savingsPercentage,
+            color: GlobalStyles.colors.warning500,
+            text: `${savingsPercentage}%`,
+            tooltipText: "Saving",
+          });
+        }
+
+        setPieChartData(updatedPieChartData);
+      } catch (error) {
+        console.error("Lỗi tải dữ liệu:", error);
+      }
+    }
+
+    getIncome();
+  }, [expenses, selectedMonth, selectedYear, filterType, filteredExpenses]);
 
   useEffect(() => {
     setExpenses(expensesCtx.expenses);
@@ -33,7 +139,7 @@ function ChartExpenses({ refresh }) {
 
         setError(null);
       } catch (error) {
-        setError("Không thể tải dữ liệu. Vui lòng thử lại sau.");
+        setError("Can not load data. Please try again later !");
       }
     }
     getExpenses();
@@ -74,10 +180,13 @@ function ChartExpenses({ refresh }) {
     let title = "";
 
     if (type === "week") {
+      const dayOfWeek = currentDate.getDay();
       const startOfWeek = new Date(currentDate);
+
       startOfWeek.setDate(
-        currentDate.getDate() - currentDate.getDay() + week * 7
+        currentDate.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1) + week * 7
       );
+
       const endOfWeek = new Date(startOfWeek);
       endOfWeek.setDate(startOfWeek.getDate() + 6);
 
@@ -143,28 +252,34 @@ function ChartExpenses({ refresh }) {
     }
     const data = Array.from(dataMap, ([key, amount]) => ({
       value: amount,
-      label: type === "week" ? key.split("-")[2] : key.toString(), // Đổi key thành chuỗi nếu là số
+      label: type === "week" ? key.split("-")[2] : key.toString(),
       frontColor: GlobalStyles.colors.primary500,
       topLabelComponent: () => (
         <Text style={styles.valueLabel}>{amount > 0 ? amount : ""}</Text>
       ),
     }));
 
-    return { data, title }; // Trả về đúng định dạng object { data, title }
+    return { data, title };
   }
 
   function filterExpenses(expenses) {
     return expenses.filter((expense) => {
       const expenseDate = new Date(expense.date);
       if (filterType === "week") {
-        const startOfWeek = new Date();
+        const currentDate = new Date(); // Ngày hiện tại
+        const startOfWeek = new Date(currentDate);
+        const dayOfWeek = currentDate.getDay();
         startOfWeek.setDate(
-          startOfWeek.getDate() - startOfWeek.getDay() + selectedWeek * 7
+          currentDate.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1)
         );
+        startOfWeek.setDate(startOfWeek.getDate() + selectedWeek * 7);
         const endOfWeek = new Date(startOfWeek);
         endOfWeek.setDate(startOfWeek.getDate() + 6);
+        startOfWeek.setHours(0, 0, 0, 0);
+        endOfWeek.setHours(23, 59, 59, 999);
         return expenseDate >= startOfWeek && expenseDate <= endOfWeek;
       }
+
       if (filterType === "month") {
         return (
           expenseDate.getFullYear() === selectedYear &&
@@ -178,8 +293,6 @@ function ChartExpenses({ refresh }) {
     });
   }
 
-  const filteredExpenses = filterExpenses(expenses);
-
   const [selectedFilter, setSelectedFilter] = useState("week");
 
   function handleFilterChange(filter) {
@@ -187,121 +300,173 @@ function ChartExpenses({ refresh }) {
     setFilterType(filter);
   }
 
+  const getTimePeriodLabel = (filterType) => {
+    switch (filterType) {
+      case "week":
+        return "week";
+      case "year":
+        return "year";
+      default:
+        return "month";
+    }
+  };
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Expense Statistics</Text>
-      {error && <Text style={styles.error}>{error}</Text>}
-      <Text style={styles.subtitle}>{displayTitle}</Text>
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: GlobalStyles.colors.primary700 }}
+    >
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+        <View style={styles.container}>
+          <Text style={styles.title}>Expense Statistics</Text>
+          {error && <Text style={styles.error}>{error}</Text>}
+          <Text style={styles.subtitle}>{displayTitle}</Text>
 
-      <View style={styles.filterContainer}>
-        <IconButton
-          icon="calendar-outline"
-          color={selectedFilter === "week" ? "yellow" : "white"}
-          size={28}
-          onPress={() => handleFilterChange("week")}
-        />
-        <IconButton
-          icon="calendar-number-outline"
-          color={selectedFilter === "month" ? "yellow" : "white"}
-          size={28}
-          onPress={() => handleFilterChange("month")}
-        />
-        <IconButton
-          icon="calendar"
-          color={selectedFilter === "year" ? "yellow" : "white"}
-          size={28}
-          onPress={() => handleFilterChange("year")}
-        />
-      </View>
+          <View style={styles.filterContainer}>
+            <IconButton
+              icon="calendar-outline"
+              color={selectedFilter === "week" ? "yellow" : "white"}
+              size={28}
+              onPress={() => handleFilterChange("week")}
+            />
+            <IconButton
+              icon="calendar-number-outline"
+              color={selectedFilter === "month" ? "yellow" : "white"}
+              size={28}
+              onPress={() => handleFilterChange("month")}
+            />
+            <IconButton
+              icon="calendar"
+              color={selectedFilter === "year" ? "yellow" : "white"}
+              size={28}
+              onPress={() => handleFilterChange("year")}
+            />
+          </View>
 
-      {filterType === "year" && (
-        <View style={styles.selector}>
-          <IconButton
-            icon="chevron-back-circle-outline"
-            color="white"
-            size={28}
-            onPress={() => setSelectedYear((prev) => prev - 1)}
+          {filterType === "year" && (
+            <View style={styles.selector}>
+              <IconButton
+                icon="chevron-back-circle-outline"
+                color="white"
+                size={28}
+                onPress={() => setSelectedYear((prev) => prev - 1)}
+              />
+              <IconButton
+                icon="chevron-forward-circle-outline"
+                color="white"
+                size={28}
+                onPress={() => setSelectedYear((prev) => prev + 1)}
+              />
+            </View>
+          )}
+
+          {filterType === "month" && (
+            <View style={styles.selector}>
+              <IconButton
+                icon="chevron-back-circle-outline"
+                color="white"
+                size={28}
+                onPress={() => {
+                  if (selectedMonth === 1) {
+                    setSelectedMonth(12);
+                    setSelectedYear((prev) => prev - 1);
+                  } else {
+                    setSelectedMonth((prev) => prev - 1);
+                  }
+                }}
+              />
+              <IconButton
+                icon="chevron-forward-circle-outline"
+                color="white"
+                size={28}
+                onPress={() => {
+                  if (selectedMonth === 12) {
+                    setSelectedMonth(1);
+                    setSelectedYear((prev) => prev + 1);
+                  } else {
+                    setSelectedMonth((prev) => prev + 1);
+                  }
+                }}
+              />
+            </View>
+          )}
+
+          {filterType === "week" && (
+            <View style={styles.selector}>
+              <IconButton
+                icon="chevron-back-circle-outline"
+                color="white"
+                size={28}
+                onPress={() => setSelectedWeek((prev) => prev - 1)}
+              />
+              <IconButton
+                icon="chevron-forward-circle-outline"
+                color="white"
+                size={28}
+                onPress={() => setSelectedWeek((prev) => prev + 1)}
+              />
+            </View>
+          )}
+
+          <BarChart
+            data={chartData}
+            barWidth={35}
+            noOfSections={5}
+            yAxisThickness={2}
+            xAxisThickness={2}
+            isAnimated
+            hideRules
+            spacing={12}
+            maxValue={
+              chartData.length > 0
+                ? Math.max(...chartData.map((item) => item.value)) * 1.2
+                : 10
+            }
           />
-          <IconButton
-            icon="chevron-forward-circle-outline"
-            color="white"
-            size={28}
-            onPress={() => setSelectedYear((prev) => prev + 1)}
-          />
+          
+
+          <View style={styles.piechart}>
+            <Text style={styles.subtitle}>
+            The percentage of spending and remaining
+          </Text>
+            <PieChart
+              data={pieChartData}
+              donut
+              showValuesAsLabels
+              radius={100}
+              showText
+              textSize={14}
+              textColor="white"
+              innerRadius={false}
+              showTooltip={true}
+            />
+            <Text style={styles.incomeText}>
+              Your planned expenses for this {getTimePeriodLabel(filterType)} $
+              {spendingBudget.toLocaleString()}
+            </Text>
+            <View>
+              <Text style={styles.percentageText}>
+                Spending: {totalExpenses.toLocaleString()}
+              </Text>
+              <Text style={styles.percentageText}>
+                Saving: {totalSavings.toLocaleString()}
+              </Text>
+              <Text style={styles.percentageText}>
+                Remaining: {totalRemaining.toLocaleString()}
+              </Text>
+            </View>
+
+          </View>
+          <Text style={styles.subtitle}>Detail</Text>
+          <View style={styles.item}>
+            <ExpensesOutput
+              expenses={filteredExpenses}
+              expensesPeriod={displayTitle}
+              fallbackText="No Expenses registered for the period time !"
+            />
+          </View>
         </View>
-      )}
-
-      {filterType === "month" && (
-        <View style={styles.selector}>
-          <IconButton
-            icon="chevron-back-circle-outline"
-            color="white"
-            size={28}
-            onPress={() => {
-              if (selectedMonth === 1) {
-                setSelectedMonth(12);
-                setSelectedYear((prev) => prev - 1);
-              } else {
-                setSelectedMonth((prev) => prev - 1);
-              }
-            }}
-          />
-          <IconButton
-            icon="chevron-forward-circle-outline"
-            color="white"
-            size={28}
-            onPress={() => {
-              if (selectedMonth === 12) {
-                setSelectedMonth(1);
-                setSelectedYear((prev) => prev + 1);
-              } else {
-                setSelectedMonth((prev) => prev + 1);
-              }
-            }}
-          />
-        </View>
-      )}
-
-      {filterType === "week" && (
-        <View style={styles.selector}>
-          <IconButton
-            icon="chevron-back-circle-outline"
-            color="white"
-            size={28}
-            onPress={() => setSelectedWeek((prev) => prev - 1)}
-          />
-          <IconButton
-            icon="chevron-forward-circle-outline"
-            color="white"
-            size={28}
-            onPress={() => setSelectedWeek((prev) => prev + 1)}
-          />
-        </View>
-      )}
-
-      <BarChart
-        data={chartData}
-        barWidth={35}
-        noOfSections={5}
-        yAxisThickness={0}
-        xAxisThickness={2}
-        isAnimated
-        hideRules
-        spacing={12}
-        maxValue={
-          chartData.length > 0
-            ? Math.max(...chartData.map((item) => item.value)) * 1.2
-            : 10
-        }
-      />
-      <View style={styles.item}>
-        <ExpensesOutput
-          expenses={filteredExpenses}
-          expensesPeriod={displayTitle}
-          fallbackText="No Expenses registered for the period time !"
-        />
-      </View>
-    </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
@@ -309,10 +474,19 @@ export default ChartExpenses;
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     backgroundColor: GlobalStyles.colors.primary700,
     padding: 32,
     alignItems: "center",
+    flex: 1,
+  },
+  piechart: {
+    marginBottom: 20,
+    alignItems: "center",
+    borderBottomWidth: 1,
+    borderTopWidth: 1,
+    borderBottomColor: "white",
+    borderTopColor: "white",
+    marginVertical: 10,
   },
   title: {
     fontSize: 24,
@@ -324,6 +498,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "white",
     marginBottom: 20,
+    marginTop: 20,
   },
   filterContainer: {
     flexDirection: "row",
@@ -348,6 +523,12 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 8,
   },
+  incomeText: {
+    fontSize: 18,
+    color: "white",
+    textAlign: "center",
+    marginTop: 10,
+  },
   error: {
     color: "red",
     fontSize: 16,
@@ -357,5 +538,17 @@ const styles = StyleSheet.create({
     flex: 1,
     width: "110%",
     flexGrow: 1,
+  },
+  percentageText: {
+    fontSize: 16,
+    color: "white",
+    marginVertical: 2,
+  },
+  space: {
+    borderBottomWidth: 1,
+    borderTopWidth: 1,
+    borderBottomColor: "white",
+    borderTopColor: "white",
+    marginVertical: 10,
   },
 });

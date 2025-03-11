@@ -3,7 +3,7 @@ import { GlobalStyles } from "../../constants/styles";
 import { getFormattedDate } from "../../util/date";
 import { useNavigation } from "@react-navigation/native";
 
-function ExpenseItem({ id, description, amount, date }) {
+function ExpenseItem({ id, description, amount, date, category }) {
   const navigation = useNavigation();
 
   function expensePressHandler() {
@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
   expenseItem: {
     padding: 12,
     marginVertical: 8,
-    backgroundColor: GlobalStyles.colors.primary500,
+    backgroundColor: GlobalStyles.colors.primary700,
     flexDirection: "row",
     justifyContent: "space-between",
     borderRadius: 6,
@@ -46,6 +46,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     shadowOffset: { width: 1, height: 1 },
     shadowOpacity: 0.4,
+    marginLeft: 10,
   },
 
   textBase: {
@@ -61,7 +62,7 @@ const styles = StyleSheet.create({
   amountContainer: {
     paddingHorizontal: 12,
     paddingVertical: 4,
-    backgroundColor: "white",
+    backgroundColor: GlobalStyles.colors.primary100,
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 4,
@@ -69,12 +70,12 @@ const styles = StyleSheet.create({
   },
 
   amount: {
-    color: GlobalStyles.colors.primary500,
+    color: GlobalStyles.colors.accent500,
     fontWeight: "bold",
   },
 
   pressed: {
-    opacity: 0.75,
-    transform: [{ scale: 0.98 }],
+    opacity: 0.85,
+    transform: [{ scale: 0.96 }],
   },
 });

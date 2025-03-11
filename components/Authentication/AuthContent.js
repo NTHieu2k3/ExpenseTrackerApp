@@ -118,62 +118,63 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 20,
-    backgroundColor: GlobalStyles.colors.primary800,
+    backgroundColor: GlobalStyles.colors.primary900,
     flex: 1,
   },
 
   headerText: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: "bold",
-    color: "white",
-    marginBottom: 8,
+    color: GlobalStyles.colors.primary400,
+    marginBottom: 10,
   },
 
   subText: {
     fontSize: 16,
     color: GlobalStyles.colors.primary200,
-    marginBottom: 24,
+    marginBottom: 26,
     textAlign: "center",
   },
 
   authContent: {
     width: "100%",
-    padding: 10,
-    borderRadius: 12,
-    backgroundColor: GlobalStyles.colors.primary700,
-    elevation: 4,
-    shadowColor: "rgba(0, 0, 0, 0.3)",
+    padding: 14,
+    borderRadius: 14,
+    backgroundColor: GlobalStyles.colors.primary800,
+    elevation: 5,
+    shadowColor: "rgba(0, 0, 0, 0.2)",
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.7,
-    shadowRadius: 6,
+    shadowRadius: 7,
   },
 
   switchButton: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 18,
     alignSelf: "center",
-    marginTop: 20,
+    marginTop: 22,
   },
 
   switchText: {
     textAlign: "center",
     color: GlobalStyles.colors.primary100,
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: "bold",
     textDecorationLine: "underline",
   },
 
   forgotPassword: {
-    marginTop: 12,
+    marginTop: 14,
     alignSelf: "center",
   },
 
   forgotText: {
     color: GlobalStyles.colors.primary100,
-    fontSize: 14,
+    fontSize: 15,
     textDecorationLine: "underline",
   },
 
   pressed: {
-    opacity: 0.6,
+    opacity: 0.7,
   },
 });
+

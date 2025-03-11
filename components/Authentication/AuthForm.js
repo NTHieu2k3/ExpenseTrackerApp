@@ -106,11 +106,11 @@ const styles = StyleSheet.create({
   form: {
     marginVertical: 30,
     marginHorizontal: 16,
-    padding: 20,
-    backgroundColor: GlobalStyles.colors.primary800,
+    padding: 24,
+    backgroundColor: GlobalStyles.colors.primary300,
     borderRadius: 12,
-    elevation: 4,
-    shadowColor: "rgba(0, 0, 0, 0.25)",
+    elevation: 6,
+    shadowColor: "rgba(0, 0, 0, 0.2)",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.6,
     shadowRadius: 6,
@@ -118,21 +118,21 @@ const styles = StyleSheet.create({
 
   button: {
     borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingVertical: 14,
+    paddingHorizontal: 20,
     backgroundColor: GlobalStyles.colors.primary500,
-    shadowColor: "rgba(0, 0, 0, 0.25)",
+    shadowColor: "rgba(0, 0, 0, 0.2)",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.8,
+    shadowOpacity: 0.7,
     shadowRadius: 5,
   },
 
   buttons: {
-    marginTop: 20,
+    marginTop: 24,
   },
 
   pressed: {
-    opacity: 0.8,
+    opacity: 0.7,
   },
 
   buttonText: {
@@ -143,6 +143,6 @@ const styles = StyleSheet.create({
   },
 
   input: {
-    flex: 1
+    flex: 1,
   },
 });

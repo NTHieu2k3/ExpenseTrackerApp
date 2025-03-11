@@ -6,20 +6,23 @@ import {
   Pressable,
   Alert,
   StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableWithoutFeedback,
+  Keyboard,
+  ScrollView,
 } from "react-native";
 import { AuthContex } from "../../store/auth-contex";
 import { GlobalStyles } from "../../constants/styles";
-import { reauthenticateUser, changePassword } from "../../util/http";
+import { changePassword } from "../../util/http";
 import IconButton from "../../components/UI/IconButton";
 import LoadingOverlay from "../../components/UI/LoadingOverlay";
 
 function ChangePasswordScreen({ navigation }) {
   const authCtx = useContext(AuthContex);
-  const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -36,16 +39,7 @@ function ChangePasswordScreen({ navigation }) {
     setIsLoading(true);
 
     try {
-      // Xác thực lại mật khẩu cũ
-      const newIdToken = await reauthenticateUser(authCtx.email, oldPassword);
-      if (!newIdToken) {
-        Alert.alert("ERROR", "Incorrect old password. Please try again!");
-        setIsLoading(false);
-        return;
-      }
-
-      // Đổi mật khẩu sau khi xác thực thành công
-      await changePassword(newIdToken, newPassword);
+      await changePassword(authCtx.token, newPassword);
       Alert.alert("SUCCESS", "Password changed successfully");
       navigation.goBack();
     } catch (error) {
@@ -60,59 +54,56 @@ function ChangePasswordScreen({ navigation }) {
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.label}>Nhập mật khẩu cũ</Text>
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          value={oldPassword}
-          onChangeText={setOldPassword}
-          secureTextEntry={!showOldPassword}
-        />
-        <IconButton
-          icon={showOldPassword ? "eye-off" : "eye"}
-          color="black"
-          size={24}
-          onPress={() => setShowOldPassword((prev) => !prev)}
-        />
-      </View>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={styles.container}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+          <Text style={styles.label}>Enter new password</Text>
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={styles.input}
+              value={newPassword}
+              onChangeText={setNewPassword}
+              secureTextEntry={!showNewPassword}
+            />
+            <IconButton
+              icon={showNewPassword ? "eye-off" : "eye"}
+              color="black"
+              size={24}
+              onPress={() => setShowNewPassword((prev) => !prev)}
+            />
+          </View>
 
-      <Text style={styles.label}>Nhập mật khẩu mới</Text>
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          value={newPassword}
-          onChangeText={setNewPassword}
-          secureTextEntry={!showNewPassword}
-        />
-        <IconButton
-          icon={showNewPassword ? "eye-off" : "eye"}
-          color="black"
-          size={24}
-          onPress={() => setShowNewPassword((prev) => !prev)}
-        />
-      </View>
+          <Text style={styles.label}>Confirm new password</Text>
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={styles.input}
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              secureTextEntry={!showConfirmPassword}
+            />
+            <IconButton
+              icon={showConfirmPassword ? "eye-off" : "eye"}
+              color="black"
+              size={24}
+              onPress={() => setShowConfirmPassword((prev) => !prev)}
+            />
+          </View>
 
-      <Text style={styles.label}>Xác nhận mật khẩu mới</Text>
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
-          secureTextEntry={!showConfirmPassword}
-        />
-        <IconButton
-          icon={showConfirmPassword ? "eye-off" : "eye"}
-          color="black"
-          size={24}
-          onPress={() => setShowConfirmPassword((prev) => !prev)}
-        />
-      </View>
-
-      <Pressable style={styles.button} onPress={submitHandler}>
-        <Text style={styles.buttonText}>Đổi mật khẩu</Text>
-      </Pressable>
-    </View>
+          <Pressable
+            style={({ pressed }) => [
+              styles.button,
+              pressed && { opacity: 0.7 },
+            ]}
+            onPress={submitHandler}
+          >
+            <Text style={styles.buttonText}>Confirm</Text>
+          </Pressable>
+        </ScrollView>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -121,12 +112,18 @@ export default ChangePasswordScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: GlobalStyles.colors.primary700,
+    backgroundColor: GlobalStyles.colors.primary600, // Sáng hơn primary700
     paddingHorizontal: 24,
+    justifyContent: "center",
+    opacity: 0.98, // Làm mềm nền
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    padding: 24,
     justifyContent: "center",
   },
   label: {
-    color: "white",
+    color: GlobalStyles.colors.primary100, // Màu sáng nhưng dịu hơn
     fontSize: 18,
     fontWeight: "600",
     marginBottom: 8,
@@ -134,16 +131,16 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "white",
+    backgroundColor: GlobalStyles.colors.primary50, // Dịu hơn trắng
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 10,
     marginBottom: 12,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.15, // Tăng hiệu ứng đổ bóng
     shadowRadius: 3,
-    elevation: 2,
+    elevation: 3,
   },
   input: {
     flex: 1,
@@ -151,21 +148,20 @@ const styles = StyleSheet.create({
     color: GlobalStyles.colors.primary700,
   },
   button: {
-    backgroundColor: GlobalStyles.colors.primary500,
+    backgroundColor: GlobalStyles.colors.accent500, // Dùng accent thay vì primary500
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: "center",
     marginTop: 10,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.25,
     shadowRadius: 6,
     elevation: 4,
   },
   buttonText: {
-    color: "white",
-    fontSize: 18,
+    color: GlobalStyles.colors.primary50, // Dịu hơn trắng
+    fontSize: 16,
     fontWeight: "bold",
-    letterSpacing: 0.5,
   },
 });

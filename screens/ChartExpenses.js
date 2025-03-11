@@ -36,30 +36,59 @@ function ChartExpenses({ refresh }) {
   useEffect(() => {
     async function getIncome() {
       try {
-        const salaryData = await fetchMonthlySalary(authCtx.token, authCtx.uid);
-        let computedIncome, computedSavings, spendingBudget;
+        let salaryData = await fetchMonthlySalary(
+          authCtx.token,
+          authCtx.uid,
+          selectedYear,
+          selectedMonth
+        );
 
-        if (filterType === "week") {
-          computedIncome = salaryData.salary / 4;
-          computedSavings = salaryData.savingsGoal / 4;
-        } else if (filterType === "year") {
-          computedIncome = salaryData.salary * 12;
-          computedSavings = salaryData.savingsGoal * 12;
-        } else {
-          computedIncome = salaryData.salary;
-          computedSavings = salaryData.savingsGoal;
+        if (!salaryData.salary && !salaryData.savingsGoal) {
+          for (let m = selectedMonth - 1; m > 0; m--) {
+            salaryData = await fetchMonthlySalary(
+              authCtx.token,
+              authCtx.uid,
+              selectedYear,
+              m
+            );
+            if (salaryData.salary || salaryData.savingsGoal) break;
+          }
+  
+          if (salaryData.salary || salaryData.savingsGoal) {
+            await updateMonthlySalary(
+              authCtx.token,
+              salaryData.salary || 0,
+              salaryData.savingsGoal || 0,
+              authCtx.uid,
+              selectedYear,
+              selectedMonth
+            );
+          }
         }
-
+  
+        let computedIncome, computedSavings, spendingBudget;
+  
+        if (filterType === "week") {
+          computedIncome = (salaryData.salary || 0) / 4;
+          computedSavings = (salaryData.savingsGoal || 0) / 4;
+        } else if (filterType === "year") {
+          computedIncome = (salaryData.salary || 0) * 12;
+          computedSavings = (salaryData.savingsGoal || 0) * 12;
+        } else {
+          computedIncome = salaryData.salary || 0;
+          computedSavings = salaryData.savingsGoal || 0;
+        }
+  
         spendingBudget = Math.round(computedIncome - computedSavings);
         setSpendingBudget(spendingBudget);
-
+  
         const totalExpense = filteredExpenses.reduce(
           (sum, expense) => sum + expense.amount,
           0
         );
-
+  
         let remainingAmount = spendingBudget - totalExpense;
-
+  
         if (remainingAmount < 0) {
           let deficit = Math.abs(remainingAmount);
           if (computedSavings >= deficit) {
@@ -72,25 +101,20 @@ function ChartExpenses({ refresh }) {
         } else {
           remainingAmount = Math.round(remainingAmount);
         }
-
+  
         setTotalExpenses(totalExpense);
         setTotalSavings(computedSavings);
         setTotalRemaining(remainingAmount);
-
+  
         let totalUsed = totalExpense + computedSavings + remainingAmount;
         let expensesPercentage = Math.round((totalExpense / totalUsed) * 100);
         let savingsPercentage = Math.round((computedSavings / totalUsed) * 100);
         let remainingPercentage = Math.round(
           (remainingAmount / totalUsed) * 100
         );
-
-        console.log("spendingBudget:", spendingBudget);
-        console.log("totalExpense:", totalExpense);
-        console.log("computedSavings:", computedSavings);
-        console.log("remainingAmount:", remainingAmount);
-
+  
         const updatedPieChartData = [];
-
+  
         if (expensesPercentage > 0) {
           updatedPieChartData.push({
             value: expensesPercentage,
@@ -99,34 +123,34 @@ function ChartExpenses({ refresh }) {
             tooltipText: "Spending",
           });
         }
-
+  
         if (remainingPercentage > 0) {
           updatedPieChartData.push({
             value: remainingPercentage,
-            color: GlobalStyles.colors.success500,
+            color: GlobalStyles.colors.gray500,
             text: `${remainingPercentage}%`,
             tooltipText: "Remaining",
           });
         }
-
+  
         if (savingsPercentage > 0) {
           updatedPieChartData.push({
             value: savingsPercentage,
-            color: GlobalStyles.colors.warning500,
+            color: GlobalStyles.colors.primary300,
             text: `${savingsPercentage}%`,
             tooltipText: "Saving",
           });
         }
-
+  
         setPieChartData(updatedPieChartData);
       } catch (error) {
         console.error("Lỗi tải dữ liệu:", error);
       }
     }
-
+  
     getIncome();
   }, [expenses, selectedMonth, selectedYear, filterType, filteredExpenses]);
-
+  
   useEffect(() => {
     setExpenses(expensesCtx.expenses);
   }, [expensesCtx.expenses]);
@@ -422,12 +446,12 @@ function ChartExpenses({ refresh }) {
                 : 10
             }
           />
-          
 
           <View style={styles.piechart}>
             <Text style={styles.subtitle}>
-            The percentage of spending and remaining
-          </Text>
+              Your planned expenses for this {getTimePeriodLabel(filterType)} $
+              {spendingBudget.toLocaleString()}
+            </Text>
             <PieChart
               data={pieChartData}
               donut
@@ -439,22 +463,17 @@ function ChartExpenses({ refresh }) {
               innerRadius={false}
               showTooltip={true}
             />
-            <Text style={styles.incomeText}>
-              Your planned expenses for this {getTimePeriodLabel(filterType)} $
-              {spendingBudget.toLocaleString()}
-            </Text>
-            <View>
+            <View style={{ marginTop: 10 }}>
               <Text style={styles.percentageText}>
-                Spending: {totalExpenses.toLocaleString()}
+                Spending: ${totalExpenses.toLocaleString()}
               </Text>
               <Text style={styles.percentageText}>
-                Saving: {totalSavings.toLocaleString()}
+                Saving: ${totalSavings.toLocaleString()}
               </Text>
               <Text style={styles.percentageText}>
-                Remaining: {totalRemaining.toLocaleString()}
+                Remaining: ${totalRemaining.toLocaleString()}
               </Text>
             </View>
-
           </View>
           <Text style={styles.subtitle}>Detail</Text>
           <View style={styles.item}>

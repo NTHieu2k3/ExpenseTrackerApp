@@ -1,10 +1,18 @@
 import React, { useState, useEffect, useContext } from "react";
-import { View, Text, TextInput, Alert, StyleSheet, ActivityIndicator } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  Alert,
+  StyleSheet,
+  ActivityIndicator,
+} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AuthContex } from "../store/auth-contex";
 import { fetchMonthlySalary, storeMonthlySalary } from "../util/http";
 import { GlobalStyles } from "../constants/styles";
 import Button from "../components/UI/Button";
+import { getCurrentMonthYear } from "../util/date";
 
 function WelcomeScreen({ navigation }) {
   const [salary, setSalary] = useState("");
@@ -15,13 +23,16 @@ function WelcomeScreen({ navigation }) {
 
   useEffect(() => {
     async function checkSalary() {
-      const savedData = await fetchMonthlySalary(token, uid);
+      const { year, month } = getCurrentMonthYear();
+      const savedData = await fetchMonthlySalary(token, uid, year, month);
+  
       if (savedData.salary && savedData.savingsGoal) {
         navigation.replace("ExpensesOverview");
       } else {
         setIsLoading(false);
       }
     }
+  
     checkSalary();
   }, []);
 
@@ -45,19 +56,33 @@ function WelcomeScreen({ navigation }) {
     }
 
     try {
-      await storeMonthlySalary(token, numericSalary, numericSavingsGoal, uid);
+      const { year, month } = getCurrentMonthYear(); // Lấy tháng và năm
+      await storeMonthlySalary(
+        token,
+        numericSalary,
+        numericSavingsGoal,
+        uid,
+        year,
+        month
+      );
       await AsyncStorage.setItem("monthlySalary", numericSalary.toString());
       await AsyncStorage.setItem("savingsGoal", numericSavingsGoal.toString());
       navigation.replace("ExpensesOverview");
     } catch (error) {
-      Alert.alert("ERROR", "Can not save your salary and savings goal. Please try again later!");
+      Alert.alert(
+        "ERROR",
+        "Can not save your salary and savings goal. Please try again later!"
+      );
     }
   }
 
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={GlobalStyles.colors.primary500} />
+        <ActivityIndicator
+          size="large"
+          color={GlobalStyles.colors.primary500}
+        />
       </View>
     );
   }
@@ -65,8 +90,10 @@ function WelcomeScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Set Your Monthly Salary</Text>
-      <Text style={styles.description}>Enter your salary and savings goal to manage your expenses efficiently.</Text>
-      
+      <Text style={styles.description}>
+        Enter your salary and savings goal to manage your expenses efficiently.
+      </Text>
+
       <View style={styles.inputContainer}>
         <Text style={styles.dollarSign}>$</Text>
         <TextInput
@@ -89,7 +116,9 @@ function WelcomeScreen({ navigation }) {
         />
       </View>
 
-      <Button onPress={submitSalaryHandler} style={styles.button}>Save</Button>
+      <Button onPress={submitSalaryHandler} style={styles.button}>
+        Save
+      </Button>
     </View>
   );
 }

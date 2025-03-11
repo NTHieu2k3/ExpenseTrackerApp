@@ -16,9 +16,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
-    alignContent: "center",
+    alignItems: "center",
     padding: 24,
-    backgroundColor: GlobalStyles.colors.primary700,
+    backgroundColor: GlobalStyles.colors.error500,
+    opacity: 0.9,
   },
 
   text: {
@@ -27,13 +28,14 @@ const styles = StyleSheet.create({
   },
 
   title: {
-    fontSize: 12,
+    fontSize: 18,
     fontWeight: "bold",
-    color: "white",
+    color: GlobalStyles.colors.error50,
   },
 
   message: {
-    fontSize: 14,
-    fontWeight: "bold",
+    fontSize: 16,
+    fontWeight: "500",
+    color: GlobalStyles.colors.error100,
   },
 });

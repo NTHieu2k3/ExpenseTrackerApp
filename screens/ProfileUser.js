@@ -31,9 +31,9 @@ function ProfileUser() {
         onPress={() => {}}
       >
         <View style={styles.row}>
-          <Ionicons name="person-outline" size={24} color="white" />
+          <Ionicons name="person-outline" size={24} color={GlobalStyles.colors.accent500} />
           <Text style={styles.text}>Account Information</Text>
-          <Ionicons name="chevron-forward-outline" size={24} color="white" />
+          <Ionicons name="chevron-forward-outline" size={24} color={GlobalStyles.colors.accent500} />
         </View>
       </Pressable>
 
@@ -42,20 +42,30 @@ function ProfileUser() {
         onPress={() => {}}
       >
         <View style={styles.row}>
-          <Ionicons name="settings-outline" size={24} color="white" />
+          <Ionicons name="settings-outline" size={24} color={GlobalStyles.colors.accent500} />
           <Text style={styles.text}>Settings</Text>
-          <Ionicons name="chevron-forward-outline" size={24} color="white" />
+          <Ionicons name="chevron-forward-outline" size={24} color={GlobalStyles.colors.accent500} />
         </View>
       </Pressable>
 
       <Pressable
         style={({ pressed }) => [styles.item, pressed && styles.pressed]}
+        onPress={() => navigation.navigate("UpdateSalary")}
+      >
+        <View style={styles.row}>
+          <Ionicons name="cash-outline" size={24} color={GlobalStyles.colors.accent500} />
+          <Text style={styles.text}>Update Salary</Text>
+          <Ionicons name="chevron-forward-outline" size={24} color={GlobalStyles.colors.accent500} />
+        </View>
+      </Pressable>
+      <Pressable
+        style={({ pressed }) => [styles.item, pressed && styles.pressed]}
         onPress={() => navigation.navigate("ChangePassword")}
       >
         <View style={styles.row}>
-          <Ionicons name="lock-closed-outline" size={24} color="white" />
+          <Ionicons name="lock-closed-outline" size={24} color={GlobalStyles.colors.accent500} />
           <Text style={styles.text}>Change Password</Text>
-          <Ionicons name="chevron-forward-outline" size={24} color="white" />
+          <Ionicons name="chevron-forward-outline" size={24}color={GlobalStyles.colors.accent500} />
         </View>
       </Pressable>
 
@@ -64,9 +74,9 @@ function ProfileUser() {
         onPress={logoutHandler}
       >
         <View style={styles.row}>
-          <Ionicons name="log-out-outline" size={24} color="white" />
+          <Ionicons name="log-out-outline" size={24} color={GlobalStyles.colors.accent500} />
           <Text style={styles.text}>Log Out</Text>
-          <Ionicons name="chevron-forward-outline" size={24} color="white" />
+          <Ionicons name="chevron-forward-outline" size={24} color={GlobalStyles.colors.accent500} />
         </View>
       </Pressable>
     </View>
@@ -102,5 +112,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     flex: 1,
     marginLeft: 12,
+    fontWeight: "bold"
   },
 });

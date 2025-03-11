@@ -1,5 +1,6 @@
 import axios from "axios";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { getCurrentMonthYear } from "./date";
 
 const BACKEND_URL =
   "https://quanlychitieuapp-f9526-default-rtdb.firebaseio.com";
@@ -11,26 +12,93 @@ const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 export async function storeMonthlySalary(token, salary, savingsGoal, uid) {
   console.log("storeMonthlySalary - UID:", uid);
-  await axios.put(
-    `${BACKEND_URL}/monthlySalary/${uid}.json?auth=${token}`,
-    { salary, savingsGoal }
+
+  const { year, month } = getCurrentMonthYear();
+
+  await axios.patch(
+    `${BACKEND_URL}/monthlySalary/${uid}/${year}/${month}.json?auth=${token}`,
+    {
+      salary,
+      savingsGoal,
+    }
   );
 }
 
-export async function fetchMonthlySalary(token, uid) {
-  console.log("fetchMonthlySalary - UID:", uid);
-  const response = await axios.get(
-    `${BACKEND_URL}/monthlySalary/${uid}.json?auth=${token}`
-  );
+export async function fetchMonthlySalary(token, uid, year, month) {
+  console.log("fetchMonthlySalary - UID:", uid, "Year:", year, "Month:", month);
 
-  if (!response.data) {
-    return { salary: null, savingsGoal: null };
+  let targetYear = year;
+  let targetMonth = month;
+  let salaryData = null;
+
+  while (targetYear >= 2020) {
+    const response = await axios.get(
+      `${BACKEND_URL}/monthlySalary/${uid}/${targetYear}/${targetMonth}.json?auth=${token}`
+    );
+
+    if (response.data) {
+      salaryData = response.data;
+      break;
+    }
+    targetMonth--;
+    if (targetMonth === 0) {
+      targetMonth = 12;
+      targetYear--;
+    }
   }
 
   return {
-    salary: response.data.salary || 0,
-    savingsGoal: response.data.savingsGoal || 0
+    salary: salaryData?.salary || 0,
+    savingsGoal: salaryData?.savingsGoal || 0,
   };
+}
+
+export async function updateMonthlySalary(
+  token,
+  salary,
+  savingsGoal,
+  uid,
+  year,
+  month
+) {
+  console.log(
+    "updateMonthlySalary - UID:",
+    uid,
+    "Year:",
+    year,
+    "Month:",
+    month
+  );
+
+  await axios.patch(
+    `${BACKEND_URL}/monthlySalary/${uid}/${year}/${month}.json?auth=${token}`,
+    {
+      salary,
+      savingsGoal,
+    }
+  );
+
+  const nextMonth = month + 1;
+  let nextYear = year;
+  if (nextMonth > 12) {
+    nextYear++;
+  }
+
+  const nextMonthData = await fetchMonthlySalary(
+    token,
+    uid,
+    nextYear,
+    nextMonth
+  );
+  if (!nextMonthData.salary && !nextMonthData.savingsGoal) {
+    await axios.patch(
+      `${BACKEND_URL}/monthlySalary/${uid}/${nextYear}/${nextMonth}.json?auth=${token}`,
+      {
+        salary,
+        savingsGoal,
+      }
+    );
+  }
 }
 
 export async function storeExpense(expenseData, token, uid) {
@@ -57,6 +125,7 @@ export async function fetchExpenses(token, uid) {
         amount: response.data[key].amount,
         date: new Date(response.data[key].date),
         description: response.data[key].description,
+        category: response.data[key].category || "Others",
       };
       expenses.push(expenseObj);
     }

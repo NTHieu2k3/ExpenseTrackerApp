@@ -21,6 +21,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import ChangePassScreen from "./screens/Auth/ChangePassScreen";
 import SupportScreen from "./screens/SupportScreen";
 import WelcomeScreen from "./screens/WelcomScreen";
+import UpdateSalary from "./screens/UpdateScreen/UpdateSalary";
 
 const Stack = createNativeStackNavigator();
 const BottomTabs = createBottomTabNavigator();
@@ -158,6 +159,11 @@ function AuthenticatedStack() {
         }}
       />
       <Stack.Screen name="ChangePassword" component={ChangePassScreen} />
+      <Stack.Screen
+        name="UpdateSalary"
+        component={UpdateSalary}
+        options={{ headerShown: false }}
+      />
       <Stack.Screen
         name="SupportScreen"
         component={SupportScreen}

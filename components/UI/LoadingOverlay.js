@@ -4,7 +4,7 @@ import { GlobalStyles } from "../../constants/styles";
 function LoadingOverlay() {
   return (
     <View style={styles.container}>
-      <ActivityIndicator size="large" color="white" />
+      <ActivityIndicator size="large" color={GlobalStyles.colors.primary100}/>
     </View>
   );
 }
@@ -15,8 +15,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
-    alignContent: "center",
+    alignItems: "center",
     padding: 24,
-    backgroundColor: GlobalStyles.colors.primary700,
+    backgroundColor: GlobalStyles.colors.primary500,
+    opacity: 0.9,
   },
 });

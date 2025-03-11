@@ -1,4 +1,4 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { useContext, useEffect, useState } from "react";
 import { ExpensesContex } from "../store/expenses-contex";
 import { getDateMinusDays } from "../util/date";
@@ -8,6 +8,7 @@ import ExpensesOutput from "../components/ExpensesOutput/ExpensesOutput";
 import LoadingOverlay from "../components/UI/LoadingOverlay";
 import ErrorOverlay from "../components/UI/ErrorOverlay";
 import { AuthContex } from "../store/auth-contex";
+import { GlobalStyles } from "../constants/styles";
 
 function RecentExpenses() {
   const [isFetching, setIsFetching] = useState(true);
@@ -44,14 +45,21 @@ function RecentExpenses() {
     return expense.date > date7DaysAgo && expense.date <= today;
   });
   return (
-    <ExpensesOutput
+    <View style={styles.container}>
+      <ExpensesOutput
       expenses={recentExpenses}
       expensesPeriod="Last 7 Days"
       fallbackText="No Expenses registered for the last 7 days"
     />
+    </View>
   );
 }
 
 export default RecentExpenses;
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  container: {
+      backgroundColor: GlobalStyles.colors.primary700,
+      flex: 1,
+    },
+});

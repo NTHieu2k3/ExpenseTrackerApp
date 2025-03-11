@@ -1,7 +1,17 @@
-import { StyleSheet, Text, View } from "react-native";
+import {
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native";
 import { useState } from "react";
 import { getFormattedDate } from "../../util/date";
 import { GlobalStyles } from "../../constants/styles";
+import { CATEGORIES } from "../../constants/catergories";
 
 import DateTimePicker from "@react-native-community/datetimepicker";
 import Input from "./Input";
@@ -23,6 +33,16 @@ function ExpenseForm({ onCancel, onSubmit, submitButtonLabel, defaultValues }) {
       isValid: true,
     },
   });
+
+  const [selectedCategory, setSelectedCategory] = useState(
+    defaultValues ? defaultValues.category : null
+  );
+  const [categoryIsValid, setCategoryIsValid] = useState(true);
+
+  function selectCategoryHandler(categoryId) {
+    setSelectedCategory(categoryId);
+    setCategoryIsValid(true);
+  }
 
   function inputChangedHandler(inputIdenfifier, enteredValue) {
     if (inputIdenfifier === "amount") {
@@ -53,14 +73,20 @@ function ExpenseForm({ onCancel, onSubmit, submitButtonLabel, defaultValues }) {
       amount: +inputs.amount.value,
       date: new Date(inputs.date.value),
       description: inputs.description.value,
+      category: selectedCategory,
     };
 
     const amountIsValid = !isNaN(expenseData.amount) && expenseData.amount > 0;
     const dateIsValid = expenseData.date.toString() !== "Invalid Date";
     const descriptionIsValid = expenseData.description.trim().length > 0;
+    const categoryIsValid = selectedCategory !== null;
 
-    if (!amountIsValid || !dateIsValid || !descriptionIsValid) {
-      // Alert.alert("INVALID INPUT", "Please check your input values !");
+    if (
+      !amountIsValid ||
+      !dateIsValid ||
+      !descriptionIsValid ||
+      !categoryIsValid
+    ) {
       setInputs((curInputs) => {
         return {
           amount: { value: curInputs.amount.value, isValid: amountIsValid },
@@ -71,79 +97,102 @@ function ExpenseForm({ onCancel, onSubmit, submitButtonLabel, defaultValues }) {
           },
         };
       });
+      setCategoryIsValid(categoryIsValid);
       return;
     }
 
     onSubmit(expenseData);
   }
 
-  const formIsInvalid =
-    !inputs.amount.isValid ||
-    !inputs.date.isValid ||
-    !inputs.description.isValid;
-
   return (
-    <View style={styles.form}>
-      <Text style={styles.title}>Your Expense</Text>
-      <View style={styles.inputsRow}>
-        <Input
-          style={styles.rowInput}
-          label="Amount"
-          invalid={!inputs.amount.isValid}
-          textInputConfig={{
-            keyboardType: "decimal-pad",
-            onChangeText: inputChangedHandler.bind(this, "amount"),
-            value: inputs.amount.value,
-          }}
-        />
-        <View style={styles.dateContainer}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={styles.container}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <ScrollView>
+          <Text style={styles.title}>Your Expense</Text>
+          <View style={styles.inputsRow}>
+            <Input
+              style={styles.rowInput}
+              label="Amount"
+              invalid={!inputs.amount.isValid}
+              textInputConfig={{
+                keyboardType: "decimal-pad",
+                onChangeText: inputChangedHandler.bind(this, "amount"),
+                value: inputs.amount.value,
+              }}
+            />
+            <View style={styles.dateContainer}>
+              <Input
+                label="Date"
+                invalid={!inputs.date.isValid}
+                textInputConfig={{
+                  editable: false,
+                  value: inputs.date.value,
+                }}
+              />
+              <IconButton
+                icon="calendar"
+                color="white"
+                size={24}
+                onPress={() => setShowDatePicker(true)}
+              />
+              {showDatePicker && (
+                <DateTimePicker
+                  value={new Date(inputs.date.value || Date.now())}
+                  mode="date"
+                  display="default"
+                  onChange={dateChangedHandler}
+                />
+              )}
+            </View>
+          </View>
           <Input
-            label="Date"
-            invalid={!inputs.date.isValid}
+            label="Description"
+            invalid={!inputs.description.isValid}
             textInputConfig={{
-              editable: false,
-              value: inputs.date.value,
+              multiline: true,
+              onChangeText: inputChangedHandler.bind(this, "description"),
+              value: inputs.description.value,
             }}
           />
-          <IconButton
-            icon="calendar"
-            color="white"
-            size={24}
-            onPress={() => setShowDatePicker(true)}
-          />
-          {showDatePicker && (
-            <DateTimePicker
-              value={new Date(inputs.date.value || Date.now())}
-              mode="date"
-              display="default"
-              onChange={dateChangedHandler}
-            />
+          <Text style={styles.categoryTitle}>Categories</Text>
+          <View style={styles.categoryContainer}>
+            {CATEGORIES.map((category) => (
+              <View key={category.id} style={styles.categoryBox}>
+                <IconButton
+                  icon={category.icon}
+                  size={32}
+                  color={selectedCategory === category.id ? "yellow" : "white"}
+                  onPress={() => selectCategoryHandler(category.id)}
+                />
+                <Text
+                  style={[
+                    styles.categoryText,
+                    selectedCategory === category.id &&
+                      styles.selectedCategoryText,
+                  ]}
+                >
+                  {category.name}
+                </Text>
+              </View>
+            ))}
+          </View>
+          {!categoryIsValid && (
+            <Text style={styles.errorText}>Please select a category!</Text>
           )}
-        </View>
-      </View>
-      <Input
-        label="Description"
-        invalid={!inputs.description.isValid}
-        textInputConfig={{
-          multiline: true,
-          onChangeText: inputChangedHandler.bind(this, "description"),
-          value: inputs.description.value,
-        }}
-      />
-      {formIsInvalid && (
-        <Text style={styles.errorText}>
-          Invalid input values - Please check your entered data !
-        </Text>
-      )}
-      <View style={styles.buttons}>
-        <Button style={styles.button} mode="flat" onPress={onCancel}>
-          Cancel
-        </Button>
-        <Button style={styles.button} onPress={submidHandler}>
-          {submitButtonLabel}
-        </Button>
-      </View>
-    </View>
+          <View style={styles.buttons}>
+            <Button style={styles.button} mode="flat" onPress={onCancel}>
+              Cancel
+            </Button>
+            <Button style={styles.button} onPress={submidHandler}>
+              {submitButtonLabel}
+            </Button>
+          </View>
+        </ScrollView>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -157,7 +206,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "white",
+    color: GlobalStyles.colors.primary100,
     marginVertical: 24,
     textAlign: "center",
   },
@@ -195,5 +244,42 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     borderBottomWidth: 1,
     borderBottomColor: GlobalStyles.colors.primary400,
+  },
+
+  categoryContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    flexWrap: "wrap",
+    marginVertical: 16,
+  },
+
+  categoryBox: {
+    width: "30%",
+    aspectRatio: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 8,
+    padding: 5,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: GlobalStyles.colors.primary400, // Giảm độ chói
+    margin: 3,
+  },
+
+  categoryTitle: {
+    fontSize: 12,
+    color: GlobalStyles.colors.primary100,
+    marginBottom: 4,
+  },
+
+
+  categoryText: {
+    fontSize: 13,
+    color: GlobalStyles.colors.primary200, // Dễ đọc hơn trên nền tối
+    marginTop: 4,
+  },
+
+  selectedCategoryText: {
+    color: GlobalStyles.colors.accent500, // Nhất quán với thiết kế
   },
 });

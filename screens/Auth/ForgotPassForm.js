@@ -53,7 +53,7 @@ function ForgotPasswordForm({ onBack }) {
       </View>
 
       <Pressable
-        style={[styles.button, isSubmitting && styles.buttonDisabled]}
+        style={({ pressed }) => [styles.button, pressed && { opacity: 0.7 }]}
         onPress={submitHandler}
         disabled={isSubmitting}
       >
@@ -71,7 +71,7 @@ const styles = StyleSheet.create({
   container: {
     padding: 20,
     borderRadius: 12,
-    backgroundColor: GlobalStyles.colors.primary700,
+    backgroundColor: GlobalStyles.colors.primary300,
     elevation: 3,
     shadowColor: "black",
     shadowOffset: { width: 0, height: 2 },

@@ -1,34 +1,24 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { checkEmailExists, login } from "../../util/http";
 import { Alert, StyleSheet } from "react-native";
 
 import LoadingOverlay from "../../components/UI/LoadingOverlay";
 import AuthContent from "../../components/Authentication/AuthContent";
-import { useNavigation } from "@react-navigation/native";
+import { AuthContex } from "../../store/auth-contex";
 
 function LoginScreen() {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
-  const navigation = useNavigation();
+
+  const authCtx = useContext(AuthContex);
 
   async function loginHandler({ email, password }) {
     setIsAuthenticating(true);
 
     try {
-      const emailExists = await checkEmailExists(email);
-      if (emailExists) {
-        Alert.alert("Email Not Found", "This email is not registered.");
-        setIsAuthenticating(false);
-        return;
-      }
-
-      await login(email, password);
-      Alert.alert("Success", "You have logged in successfully.");
-      navigation.navigate("Home");
+      const { token, uid } = await login(email, password);
+      authCtx.authenticate(token, uid, email);
     } catch (error) {
-      Alert.alert(
-        "AUTHENTICATION FAILED!",
-        "Could not log in. Please check your credentials and try again!"
-      );
+      Alert.alert("Email Not Found", "This email is not registered.");
     } finally {
       setIsAuthenticating(false);
     }

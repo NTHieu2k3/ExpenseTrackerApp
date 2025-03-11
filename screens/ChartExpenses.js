@@ -53,7 +53,7 @@ function ChartExpenses({ refresh }) {
             );
             if (salaryData.salary || salaryData.savingsGoal) break;
           }
-  
+
           if (salaryData.salary || salaryData.savingsGoal) {
             await updateMonthlySalary(
               authCtx.token,
@@ -65,9 +65,9 @@ function ChartExpenses({ refresh }) {
             );
           }
         }
-  
+
         let computedIncome, computedSavings, spendingBudget;
-  
+
         if (filterType === "week") {
           computedIncome = (salaryData.salary || 0) / 4;
           computedSavings = (salaryData.savingsGoal || 0) / 4;
@@ -78,17 +78,17 @@ function ChartExpenses({ refresh }) {
           computedIncome = salaryData.salary || 0;
           computedSavings = salaryData.savingsGoal || 0;
         }
-  
+
         spendingBudget = Math.round(computedIncome - computedSavings);
         setSpendingBudget(spendingBudget);
-  
-        const totalExpense = filteredExpenses.reduce(
-          (sum, expense) => sum + expense.amount,
-          0
-        );
-  
+
+        const totalExpense =
+          filteredExpenses && filteredExpenses.length > 0
+            ? filteredExpenses.reduce((sum, expense) => sum + expense.amount, 0)
+            : 0;
+
         let remainingAmount = spendingBudget - totalExpense;
-  
+
         if (remainingAmount < 0) {
           let deficit = Math.abs(remainingAmount);
           if (computedSavings >= deficit) {
@@ -101,20 +101,20 @@ function ChartExpenses({ refresh }) {
         } else {
           remainingAmount = Math.round(remainingAmount);
         }
-  
+
         setTotalExpenses(totalExpense);
         setTotalSavings(computedSavings);
         setTotalRemaining(remainingAmount);
-  
+
         let totalUsed = totalExpense + computedSavings + remainingAmount;
         let expensesPercentage = Math.round((totalExpense / totalUsed) * 100);
         let savingsPercentage = Math.round((computedSavings / totalUsed) * 100);
         let remainingPercentage = Math.round(
           (remainingAmount / totalUsed) * 100
         );
-  
+
         const updatedPieChartData = [];
-  
+
         if (expensesPercentage > 0) {
           updatedPieChartData.push({
             value: expensesPercentage,
@@ -123,7 +123,7 @@ function ChartExpenses({ refresh }) {
             tooltipText: "Spending",
           });
         }
-  
+
         if (remainingPercentage > 0) {
           updatedPieChartData.push({
             value: remainingPercentage,
@@ -132,7 +132,7 @@ function ChartExpenses({ refresh }) {
             tooltipText: "Remaining",
           });
         }
-  
+
         if (savingsPercentage > 0) {
           updatedPieChartData.push({
             value: savingsPercentage,
@@ -141,16 +141,16 @@ function ChartExpenses({ refresh }) {
             tooltipText: "Saving",
           });
         }
-  
+
         setPieChartData(updatedPieChartData);
       } catch (error) {
         console.error("Lỗi tải dữ liệu:", error);
       }
     }
-  
+
     getIncome();
   }, [expenses, selectedMonth, selectedYear, filterType, filteredExpenses]);
-  
+
   useEffect(() => {
     setExpenses(expensesCtx.expenses);
   }, [expensesCtx.expenses]);
@@ -287,10 +287,11 @@ function ChartExpenses({ refresh }) {
   }
 
   function filterExpenses(expenses) {
+    if (!Array.isArray(expenses)) return [];
     return expenses.filter((expense) => {
       const expenseDate = new Date(expense.date);
       if (filterType === "week") {
-        const currentDate = new Date(); // Ngày hiện tại
+        const currentDate = new Date();
         const startOfWeek = new Date(currentDate);
         const dayOfWeek = currentDate.getDay();
         startOfWeek.setDate(

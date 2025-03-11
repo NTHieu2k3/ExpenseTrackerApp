@@ -2,6 +2,7 @@ import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
 import { useState } from "react";
 import { GlobalStyles } from "../../constants/styles";
 import { useNavigation } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons";
 
 import AuthForm from "./AuthForm";
 import ForgotPasswordForm from "../../screens/Auth/ForgotPassForm";
@@ -46,7 +47,7 @@ function AuthContent({ isLogin, onAuthenticate }) {
       !passwordIsValid ||
       (!isLogin && (!emailsEqual || !passwordsEqual))
     ) {
-      Alert.alert("INVALID INPUT", "Please check your entered credentials !");
+      Alert.alert("ERROR", "Please check your login information !");
       setCredentialIsInvalid({
         email: !emailIsValid,
         confirmEmail: !emailIsValid || !emailsEqual,
@@ -60,11 +61,12 @@ function AuthContent({ isLogin, onAuthenticate }) {
 
   return (
     <View style={styles.authContainer}>
-      <Text style={styles.headerText}>Welcome to Our App</Text>
+      <Ionicons name="wallet-outline" size={50} color={GlobalStyles.colors.accent500} />
+      <Text style={styles.headerText}>Expense management</Text>
       <Text style={styles.subText}>
         {isLogin
-          ? "Log in to continue your journey!"
-          : "Create an account to get started."}
+          ? "Sign in to track your spending !"
+          : "Create an account to start managing your finances !"}
       </Text>
       <View style={styles.authContent}>
         {isForgotPassword ? (
@@ -98,10 +100,10 @@ function AuthContent({ isLogin, onAuthenticate }) {
             <View>
               <Text style={styles.switchText}>
                 {isForgotPassword
-                  ? "Back to Login"
+                  ? "Back to login"
                   : isLogin
-                  ? "Create a new account"
-                  : "Log in instead"}
+                  ? "Create new account"
+                  : "Sign in now"}
               </Text>
             </View>
           </Pressable>
@@ -123,9 +125,9 @@ const styles = StyleSheet.create({
   },
 
   headerText: {
-    fontSize: 26,
+    fontSize: 28,
     fontWeight: "bold",
-    color: GlobalStyles.colors.primary400,
+    color: GlobalStyles.colors.accent500,
     marginBottom: 10,
   },
 
@@ -138,7 +140,7 @@ const styles = StyleSheet.create({
 
   authContent: {
     width: "100%",
-    padding: 14,
+    padding: 16,
     borderRadius: 14,
     backgroundColor: GlobalStyles.colors.primary800,
     elevation: 5,
@@ -156,7 +158,7 @@ const styles = StyleSheet.create({
 
   switchText: {
     textAlign: "center",
-    color: GlobalStyles.colors.primary100,
+    color: GlobalStyles.colors.accent500,
     fontSize: 17,
     fontWeight: "bold",
     textDecorationLine: "underline",
@@ -168,13 +170,13 @@ const styles = StyleSheet.create({
   },
 
   forgotText: {
-    color: GlobalStyles.colors.primary100,
+    color: GlobalStyles.colors.accent500,
     fontSize: 15,
     textDecorationLine: "underline",
+    fontWeight: "bold"
   },
 
   pressed: {
     opacity: 0.7,
   },
 });
-

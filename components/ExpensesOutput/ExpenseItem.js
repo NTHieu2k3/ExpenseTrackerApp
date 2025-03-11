@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     shadowOffset: { width: 1, height: 1 },
     shadowOpacity: 0.4,
-    marginLeft: 10,
+    marginHorizontal: 10,
   },
 
   textBase: {

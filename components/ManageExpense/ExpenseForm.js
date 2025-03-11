@@ -164,7 +164,7 @@ function ExpenseForm({ onCancel, onSubmit, submitButtonLabel, defaultValues }) {
                 <IconButton
                   icon={category.icon}
                   size={32}
-                  color={selectedCategory === category.id ? "yellow" : "white"}
+                  color={selectedCategory === category.id ? GlobalStyles.colors.accent500 : "white"}
                   onPress={() => selectCategoryHandler(category.id)}
                 />
                 <Text

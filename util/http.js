@@ -219,7 +219,7 @@ export async function reauthenticateUser(email, oldPassword) {
       "Re-authentication failed:",
       error.response?.data?.error?.message
     );
-    return null; // Xác thực thất bại
+    return null;
   }
 }
 

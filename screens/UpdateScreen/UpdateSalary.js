@@ -18,6 +18,7 @@ import { GlobalStyles } from "../../constants/styles";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import IconButton from "../../components/UI/IconButton";
 import Button from "../../components/UI/Button";
+import { MaterialIcons, FontAwesome5 } from "@expo/vector-icons";
 
 function UpdateSalary({ navigation }) {
   const authCtx = useContext(AuthContex);
@@ -91,9 +92,15 @@ function UpdateSalary({ navigation }) {
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ScrollView contentContainerStyle={styles.scrollContainer}>
-          <Text style={styles.title}>
-            LET CHANGE YOUR SALARY AND SAVINGS GOAL
-          </Text>
+          <View style={styles.titleContainer}>
+            <FontAwesome5
+              name="wallet"
+              size={30}
+              color="white"
+              style={styles.icon}
+            />
+            <Text style={styles.title}>Update Salary & Savings</Text>
+          </View>
           <Text style={styles.label}>Select month / year:</Text>
           <View style={styles.datePickerContainer}>
             <Text style={styles.dateText}>
@@ -116,35 +123,42 @@ function UpdateSalary({ navigation }) {
               display="spinner"
               onChange={dateChangedHandler}
               textColor="white"
+              fontSize="16"
             />
           )}
 
           <Text style={styles.label}>Enter new salary:</Text>
-          <TextInput
-            style={styles.input}
-            keyboardType="numeric"
-            value={salary}
-            onChangeText={setSalary}
-            placeholder="Nhập số tiền..."
-            placeholderTextColor={GlobalStyles.colors.gray500}
-          />
+          <View style={styles.inputContainer}>
+            <Text style={styles.dollarSign}>$</Text>
+            <TextInput
+              style={styles.input}
+              keyboardType="numeric"
+              value={salary}
+              onChangeText={setSalary}
+              placeholder="Enter amount..."
+              placeholderTextColor={GlobalStyles.colors.gray500}
+            />
+          </View>
 
           <Text style={styles.label}>Enter savings goal:</Text>
-          <TextInput
-            style={styles.input}
-            keyboardType="numeric"
-            value={savingsGoal}
-            onChangeText={setSavingsGoal}
-            placeholder="Nhập số tiền..."
-            placeholderTextColor={GlobalStyles.colors.gray500}
-          />
+          <View style={styles.inputContainer}>
+            <Text style={styles.dollarSign}>$</Text>
+            <TextInput
+              style={styles.input}
+              keyboardType="numeric"
+              value={savingsGoal}
+              onChangeText={setSavingsGoal}
+              placeholder="Enter amount..."
+              placeholderTextColor={GlobalStyles.colors.gray500}
+            />
+          </View>
 
           <View style={styles.buttonContainer}>
             <Button onPress={handleUpdate} style={styles.button}>
-              Cập nhật
+              Update
             </Button>
             <Button onPress={navigation.goBack} style={styles.button}>
-              Hủy
+              Cancel
             </Button>
           </View>
         </ScrollView>
@@ -167,22 +181,21 @@ const styles = StyleSheet.create({
     padding: 24,
     justifyContent: "center",
   },
+  titleContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 40,
+  },
+  icon: {
+    marginRight: 10,
+  },
   title: {
     fontSize: 26,
     fontWeight: "bold",
     color: "white",
     textAlign: "center",
-    marginBottom: 40,
-    letterSpacing: 1.5,
-    paddingVertical: 12,
-    borderRadius: 8,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 6,
-    elevation: 5,
   },
-
   label: {
     fontSize: 16,
     fontWeight: "bold",
@@ -200,20 +213,21 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     backgroundColor: "#f9f9f9",
   },
-  dateText: {
-    fontSize: 16,
-    color: GlobalStyles.colors.primary700,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: GlobalStyles.colors.gray500,
-    backgroundColor: "#f9f9f9",
-    padding: 12,
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "white",
     borderRadius: 8,
-    fontSize: 16,
-    color: GlobalStyles.colors.gray700,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
     marginBottom: 16,
-    textAlign: "center",
+    width: "100%",
+  },
+  dollarSign: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: GlobalStyles.colors.primary500,
+    marginRight: 8,
   },
   buttonContainer: {
     flexDirection: "row",
@@ -223,10 +237,10 @@ const styles = StyleSheet.create({
   button: {
     flex: 1,
     marginHorizontal: 5,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    elevation: 4,
+  },
+  input: {
+    flex: 1,
+    fontSize: 16,
+    textAlign:'center'
   },
 });

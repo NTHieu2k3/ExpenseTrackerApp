@@ -90,6 +90,8 @@ const styles = StyleSheet.create({
 
   categoryContainer: {
     marginBottom: 16,
+    borderBottomWidth:1,
+    borderColor: GlobalStyles.colors.primary400,
   },
 
   categoryHeader: {

@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { createAccount } from "../../util/http";
+import { checkEmailExists, createAccount } from "../../util/http";
 import { Alert, StyleSheet } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 
 import LoadingOverlay from "../../components/UI/LoadingOverlay";
 import AuthContent from "../../components/Authentication/AuthContent";
-import { useNavigation } from "@react-navigation/native";
 
 function SignupScreen() {
   const [isAuthenticating, setIsAuthenticating] = useState(false);
@@ -14,6 +14,13 @@ function SignupScreen() {
   async function signupHandler({ email, password }) {
     setIsAuthenticating(true);
     try {
+      const emailExists = await checkEmailExists(email);
+      if (emailExists) {
+        Alert.alert("EMAIL EXISTS", "This email is already registered.");
+        setIsAuthenticating(false);
+        return;
+      }
+
       await createAccount(email, password);
       Alert.alert("Success", "Your account has been created successfully.", [
         { text: "OK", onPress: () => navigation.nav("Login") },

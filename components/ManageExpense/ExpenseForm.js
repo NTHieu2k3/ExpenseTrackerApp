@@ -107,7 +107,7 @@ function ExpenseForm({ onCancel, onSubmit, submitButtonLabel, defaultValues }) {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={styles.container}
+      style={styles.form}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ScrollView>
@@ -201,6 +201,7 @@ export default ExpenseForm;
 const styles = StyleSheet.create({
   form: {
     marginTop: 40,
+    backgroundColor: GlobalStyles.colors.primary700
   },
 
   title: {
@@ -262,7 +263,7 @@ const styles = StyleSheet.create({
     padding: 5,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: GlobalStyles.colors.primary400, // Giảm độ chói
+    borderColor: GlobalStyles.colors.primary400,
     margin: 3,
   },
 
@@ -275,11 +276,11 @@ const styles = StyleSheet.create({
 
   categoryText: {
     fontSize: 13,
-    color: GlobalStyles.colors.primary200, // Dễ đọc hơn trên nền tối
+    color: GlobalStyles.colors.primary200,
     marginTop: 4,
   },
 
   selectedCategoryText: {
-    color: GlobalStyles.colors.accent500, // Nhất quán với thiết kế
+    color: GlobalStyles.colors.accent500,
   },
 });

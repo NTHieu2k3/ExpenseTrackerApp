@@ -180,7 +180,7 @@ function ExpenseForm({ onCancel, onSubmit, submitButtonLabel, defaultValues }) {
             ))}
           </View>
           {!categoryIsValid && (
-            <Text style={styles.errorText}>Please select a category!</Text>
+            <Text style={styles.errorText}>Please selecstyle={styles.buttons}t a category!</Text>
           )}
           <View style={styles.buttons}>
             <Button style={styles.button} mode="flat" onPress={onCancel}>
@@ -251,7 +251,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     flexWrap: "wrap",
-    marginVertical: 16,
   },
 
   categoryBox: {
@@ -268,6 +267,7 @@ const styles = StyleSheet.create({
   },
 
   categoryTitle: {
+    marginVertical: 24,
     fontSize: 12,
     color: GlobalStyles.colors.primary100,
     marginBottom: 4,

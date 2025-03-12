@@ -1,5 +1,5 @@
 import { useContext, useLayoutEffect, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import { GlobalStyles } from "../constants/styles";
 import { ExpensesContex } from "../store/expenses-contex";
 import { storeExpense, updateExpense, deleteExpense } from "../util/http";
@@ -71,31 +71,26 @@ function ManageExpense({ route, navigation }) {
   if (isSubmitting) {
     return <LoadingOverlay />;
   }
-  console.log("editedExpenseId:", editedExpenseId);
-  console.log("isEditing:", isEditing);
-  console.log("Route Params:", route.params);
-  console.log("selectedExpense:", selectedExpense);
+
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
       <ExpenseForm
         submitButtonLabel={isEditing ? "Update" : "Add"}
         onCancel={cancelHandler}
         onSubmit={confirmHandler}
         defaultValues={selectedExpense}
       />
-      {isEditing &&
-        (console.log("Rendering Trash Icon"),
-        (
-          <View style={styles.deleteContainer}>
-            <IconButton
-              icon="trash"
-              color="white"
-              size={36}
-              onPress={deleteExpenseHandler}
-            />
-          </View>
-        ))}
-    </View>
+      {isEditing && (
+        <View style={styles.deleteContainer}>
+          <IconButton
+            icon="trash"
+            color={GlobalStyles.colors.error500}
+            size={36}
+            onPress={deleteExpenseHandler}
+          />
+        </View>
+      )}
+    </ScrollView>
   );
 }
 
@@ -109,7 +104,8 @@ const styles = StyleSheet.create({
   },
 
   deleteContainer: {
-    marginTop: 16,
+    flex: 1,
+    marginTop: 10,
     paddingTop: 8,
     borderTopWidth: 2,
     borderTopColor: GlobalStyles.colors.primary200,

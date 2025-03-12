@@ -17,8 +17,8 @@ import { CATEGORIES } from "../../constants/catergories";
 function ExpensesOutput({ expenses, expensesPeriod, fallbackText }) {
   const [expandedCategories, setExpandedCategories] = useState({});
 
-  const groupedExpenses = expenses.reduce((acc, expense) => {
-    const categoryId = expense.category ;
+  const groupedExpenses = (expenses ?? []).reduce((acc, expense) => {
+    const categoryId = expense.category;
     if (!acc[categoryId]) {
       acc[categoryId] = [];
     }

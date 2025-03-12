@@ -446,6 +446,10 @@ function ChartExpenses({ refresh }) {
                 ? Math.max(...chartData.map((item) => item.value)) * 1.2
                 : 10
             }
+            
+            yAxisTextStyle={{ color: "white" }}
+            xAxisLabelTextStyle={{ color: "white", fontSize: 14 }}
+            barStyle={{ backgroundColor: "white" }}
           />
 
           <View style={styles.piechart}>

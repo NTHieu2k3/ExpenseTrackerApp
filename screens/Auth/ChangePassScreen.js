@@ -12,6 +12,7 @@ import {
   Keyboard,
   ScrollView,
 } from "react-native";
+import Ionicons from "react-native-vector-icons/Ionicons";
 import { AuthContex } from "../../store/auth-contex";
 import { GlobalStyles } from "../../constants/styles";
 import { changePassword } from "../../util/http";
@@ -32,7 +33,7 @@ function ChangePasswordScreen({ navigation }) {
       return;
     }
     if (newPassword !== confirmPassword) {
-      Alert.alert("ERROR", "The confirmation passwords do not match !");
+      Alert.alert("ERROR", "Confirmation password does not match !");
       return;
     }
 
@@ -40,10 +41,10 @@ function ChangePasswordScreen({ navigation }) {
 
     try {
       await changePassword(authCtx.token, newPassword);
-      Alert.alert("SUCCESS", "Password changed successfully");
+      Alert.alert("SUCCESSED", "Password changed successfully !");
       navigation.goBack();
     } catch (error) {
-      Alert.alert("ERROR", "Failed to change password. Please log in again!");
+      Alert.alert("ERROR", "Unable to change password. Please try again later !");
     }
 
     setIsLoading(false);
@@ -60,13 +61,20 @@ function ChangePasswordScreen({ navigation }) {
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ScrollView contentContainerStyle={styles.scrollContainer}>
-          <Text style={styles.label}>Enter new password</Text>
+          <View style={styles.headerContainer}>
+            <Ionicons name="lock-closed" size={40} color={GlobalStyles.colors.primary50} />
+            <Text style={styles.title}>CHANGE PASSWORD</Text>
+            <Text style={styles.subtitle}>Please enter your new password</Text>
+          </View>
+
+          <Text style={styles.label}>New Password</Text>
           <View style={styles.inputContainer}>
             <TextInput
               style={styles.input}
               value={newPassword}
               onChangeText={setNewPassword}
               secureTextEntry={!showNewPassword}
+              placeholder="Enter New Password"
             />
             <IconButton
               icon={showNewPassword ? "eye-off" : "eye"}
@@ -76,13 +84,14 @@ function ChangePasswordScreen({ navigation }) {
             />
           </View>
 
-          <Text style={styles.label}>Confirm new password</Text>
+          <Text style={styles.label}>Confirm Password</Text>
           <View style={styles.inputContainer}>
             <TextInput
               style={styles.input}
               value={confirmPassword}
               onChangeText={setConfirmPassword}
               secureTextEntry={!showConfirmPassword}
+              placeholder="Enter Confirm Password"
             />
             <IconButton
               icon={showConfirmPassword ? "eye-off" : "eye"}
@@ -112,18 +121,32 @@ export default ChangePasswordScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: GlobalStyles.colors.primary600, // Sáng hơn primary700
+    backgroundColor: GlobalStyles.colors.primary700,
     paddingHorizontal: 24,
-    justifyContent: "center",
-    opacity: 0.98, // Làm mềm nền
   },
   scrollContainer: {
     flexGrow: 1,
-    padding: 24,
     justifyContent: "center",
+    padding: 24,
+  },
+  headerContainer: {
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: GlobalStyles.colors.primary50,
+    marginTop: 8,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: GlobalStyles.colors.primary100,
+    textAlign: "center",
+    marginTop: 4,
   },
   label: {
-    color: GlobalStyles.colors.primary100, // Màu sáng nhưng dịu hơn
+    color: GlobalStyles.colors.primary100,
     fontSize: 18,
     fontWeight: "600",
     marginBottom: 8,
@@ -131,16 +154,11 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: GlobalStyles.colors.primary50, // Dịu hơn trắng
+    backgroundColor: GlobalStyles.colors.primary50,
     paddingHorizontal: 10,
     paddingVertical: 6,
     borderRadius: 10,
     marginBottom: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15, // Tăng hiệu ứng đổ bóng
-    shadowRadius: 3,
-    elevation: 3,
   },
   input: {
     flex: 1,
@@ -148,19 +166,14 @@ const styles = StyleSheet.create({
     color: GlobalStyles.colors.primary700,
   },
   button: {
-    backgroundColor: GlobalStyles.colors.accent500, // Dùng accent thay vì primary500
+    backgroundColor: GlobalStyles.colors.accent500,
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: "center",
-    marginTop: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.25,
-    shadowRadius: 6,
-    elevation: 4,
+    marginTop: 20,
   },
   buttonText: {
-    color: GlobalStyles.colors.primary50, // Dịu hơn trắng
+    color: GlobalStyles.colors.primary50,
     fontSize: 16,
     fontWeight: "bold",
   },

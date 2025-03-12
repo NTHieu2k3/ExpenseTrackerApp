@@ -12,7 +12,7 @@ import { AuthContex } from "../store/auth-contex";
 
 function ManageExpense({ route, navigation }) {
   const expensesCtx = useContext(ExpensesContex);
-  const authCtx = useContext(AuthContex)
+  const authCtx = useContext(AuthContex);
   const { token, uid } = authCtx;
 
   const editedExpenseId = route.params?.expenseId;
@@ -71,7 +71,10 @@ function ManageExpense({ route, navigation }) {
   if (isSubmitting) {
     return <LoadingOverlay />;
   }
-
+  console.log("editedExpenseId:", editedExpenseId);
+  console.log("isEditing:", isEditing);
+  console.log("Route Params:", route.params);
+  console.log("selectedExpense:", selectedExpense);
   return (
     <View style={styles.container}>
       <ExpenseForm
@@ -80,16 +83,18 @@ function ManageExpense({ route, navigation }) {
         onSubmit={confirmHandler}
         defaultValues={selectedExpense}
       />
-      {isEditing && (
-        <View style={styles.deleteContainer}>
-          <IconButton
-            icon="trash"
-            color={GlobalStyles.colors.error500}
-            size={36}
-            onPress={deleteExpenseHandler}
-          />
-        </View>
-      )}
+      {isEditing &&
+        (console.log("Rendering Trash Icon"),
+        (
+          <View style={styles.deleteContainer}>
+            <IconButton
+              icon="trash"
+              color="white"
+              size={36}
+              onPress={deleteExpenseHandler}
+            />
+          </View>
+        ))}
     </View>
   );
 }

@@ -18,7 +18,10 @@ function LoginScreen() {
       const { token, uid } = await login(email, password);
       authCtx.authenticate(token, uid, email);
     } catch (error) {
-      Alert.alert("Email Not Found", "This email is not registered.");
+      Alert.alert(
+        "LOG IN FAILED!",
+        "Could not log in. Please check your input and try again later !"
+      );
     } finally {
       setIsAuthenticating(false);
     }

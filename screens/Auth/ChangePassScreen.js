@@ -18,6 +18,7 @@ import { GlobalStyles } from "../../constants/styles";
 import { changePassword } from "../../util/http";
 import IconButton from "../../components/UI/IconButton";
 import LoadingOverlay from "../../components/UI/LoadingOverlay";
+import Button from "../../components/UI/Button";
 
 function ChangePasswordScreen({ navigation }) {
   const authCtx = useContext(AuthContex);
@@ -44,7 +45,10 @@ function ChangePasswordScreen({ navigation }) {
       Alert.alert("SUCCESSED", "Password changed successfully !");
       navigation.goBack();
     } catch (error) {
-      Alert.alert("ERROR", "Unable to change password. Please try again later !");
+      Alert.alert(
+        "ERROR",
+        "Unable to change password. Please try again later !"
+      );
     }
 
     setIsLoading(false);
@@ -62,7 +66,11 @@ function ChangePasswordScreen({ navigation }) {
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           <View style={styles.headerContainer}>
-            <Ionicons name="lock-closed" size={40} color={GlobalStyles.colors.primary50} />
+            <Ionicons
+              name="lock-closed"
+              size={40}
+              color={GlobalStyles.colors.primary50}
+            />
             <Text style={styles.title}>CHANGE PASSWORD</Text>
             <Text style={styles.subtitle}>Please enter your new password</Text>
           </View>
@@ -101,15 +109,14 @@ function ChangePasswordScreen({ navigation }) {
             />
           </View>
 
-          <Pressable
-            style={({ pressed }) => [
-              styles.button,
-              pressed && { opacity: 0.7 },
-            ]}
-            onPress={submitHandler}
-          >
-            <Text style={styles.buttonText}>Confirm</Text>
-          </Pressable>
+          <View style={styles.buttonContainer}>
+            <Button onPress={submitHandler} style={styles.button}>
+              Change
+            </Button>
+            <Button onPress={navigation.goBack} style={styles.button}>
+              Cancel
+            </Button>
+          </View>
         </ScrollView>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
@@ -176,5 +183,14 @@ const styles = StyleSheet.create({
     color: GlobalStyles.colors.primary50,
     fontSize: 16,
     fontWeight: "bold",
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    marginTop: 12,
+  },
+  button: {
+    flex: 1,
+    marginHorizontal: 5,
   },
 });

@@ -34,35 +34,30 @@ const styles = StyleSheet.create({
   },
 
   label: {
-    color: "white",
+    color: GlobalStyles.colors.primary50,
     fontSize: 16,
     fontWeight: "600",
     marginBottom: 6,
   },
 
   labelInvalid: {
-    color: GlobalStyles.colors.error600,
+    color: GlobalStyles.colors.error500,
   },
 
   input: {
     paddingVertical: 14,
     paddingHorizontal: 18,
-    backgroundColor: GlobalStyles.colors.primary100,
-    color: GlobalStyles.colors.primary800,
-    borderRadius: 10,
+    backgroundColor: GlobalStyles.colors.primary200,
+    color: GlobalStyles.colors.primary900,
+    borderRadius: 12,
     fontSize: 16,
     borderWidth: 1.5,
-    borderColor: GlobalStyles.colors.primary300,
-    shadowColor: "rgba(0, 0, 0, 0.1)",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.6,
-    shadowRadius: 4,
-    elevation: 3,
+    borderColor: GlobalStyles.colors.primary400,
   },
 
   inputInvalid: {
-    borderColor: GlobalStyles.colors.error600,
-    backgroundColor: GlobalStyles.colors.error50,
-    color: GlobalStyles.colors.error800,
+    borderColor: GlobalStyles.colors.error500,
+    backgroundColor: GlobalStyles.colors.error100,
+    color: GlobalStyles.colors.error700,
   },
 });

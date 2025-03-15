@@ -69,58 +69,54 @@ export default ForgotPasswordForm;
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
-    borderRadius: 12,
-    backgroundColor: GlobalStyles.colors.primary300,
-    elevation: 3,
-    shadowColor: "black",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.5,
-    shadowRadius: 4,
-    alignItems: "center",
-    width: "90%",
-    alignSelf: "center",
+    padding: 24,
+    borderRadius: 16,
   },
 
   label: {
-    fontSize: 18,
-    fontWeight: "500",
-    color: GlobalStyles.colors.primary100,
-    marginBottom: 12,
+    fontSize: 20,
+    fontWeight: "600",
+    color: GlobalStyles.colors.accent500,
+    marginBottom: 14,
     textAlign: "center",
   },
 
   inputContainer: {
     width: "100%",
-    marginBottom: 16,
+    marginBottom: 18,
   },
 
   button: {
-    backgroundColor: GlobalStyles.colors.primary400,
-    paddingVertical: 14,
-    borderRadius: 8,
+    backgroundColor: GlobalStyles.colors.primary500,
+    paddingVertical: 16,
+    borderRadius: 12,
     alignItems: "center",
     width: "100%",
+    shadowColor: "rgba(0, 0, 0, 0.2)",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.4,
+    shadowRadius: 4,
   },
 
   buttonDisabled: {
-    backgroundColor: GlobalStyles.colors.primary300,
+    backgroundColor: GlobalStyles.colors.primary400,
   },
 
   buttonText: {
     color: "white",
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: "bold",
   },
 
   backButton: {
-    marginTop: 16,
-    padding: 8,
+    marginTop: 18,
+    padding: 10,
   },
 
   backButtonText: {
-    color: GlobalStyles.colors.primary100,
+    color: GlobalStyles.colors.accent500,
     fontSize: 16,
     textDecorationLine: "underline",
+    fontWeight: "500",
   },
 });

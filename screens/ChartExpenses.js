@@ -1,7 +1,14 @@
 import React, { useContext, useEffect, useState } from "react";
 import { AuthContex } from "../store/auth-contex";
 import { fetchExpenses, fetchMonthlySalary } from "../util/http";
-import { SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  Alert,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { BarChart, PieChart } from "react-native-gifted-charts";
 import { GlobalStyles } from "../constants/styles";
 import { ExpensesContex } from "../store/expenses-contex";
@@ -365,6 +372,19 @@ function ChartExpenses({ refresh }) {
               size={28}
               onPress={() => handleFilterChange("year")}
             />
+
+            <IconButton
+              icon="document-outline"
+              color={"white"}
+              size={28}
+              onPress={() => {
+                Alert.alert(
+                  "Feature not yet complete",
+                  "We are developing this feature. Please try again later!",
+                  [{ text: "OK", style: "default" }]
+                );
+              }}
+            />
           </View>
 
           {filterType === "year" && (
@@ -446,7 +466,6 @@ function ChartExpenses({ refresh }) {
                 ? Math.max(...chartData.map((item) => item.value)) * 1.2
                 : 10
             }
-            
             yAxisTextStyle={{ color: "white" }}
             xAxisLabelTextStyle={{ color: "white", fontSize: 14 }}
             barStyle={{ backgroundColor: "white" }}

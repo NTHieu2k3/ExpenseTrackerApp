@@ -98,8 +98,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     padding: 10,
-    borderRadius: 6,
-    elevation: 2,
   },
 
   icon: {

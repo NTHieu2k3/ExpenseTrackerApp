@@ -61,8 +61,12 @@ function AuthContent({ isLogin, onAuthenticate }) {
 
   return (
     <View style={styles.authContainer}>
-      <Ionicons name="wallet-outline" size={50} color={GlobalStyles.colors.accent500} />
-      <Text style={styles.headerText}>Expense management</Text>
+      <Ionicons
+        name="wallet-outline"
+        size={50}
+        color={GlobalStyles.colors.accent500}
+      />
+      <Text style={styles.headerText}>EXPENSES MANAGEMENT</Text>
       <Text style={styles.subText}>
         {isLogin
           ? "Sign in to track your spending !"
@@ -120,7 +124,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 20,
-    backgroundColor: GlobalStyles.colors.primary900,
+    backgroundColor: GlobalStyles.colors.primary800,
     flex: 1,
   },
 
@@ -128,44 +132,44 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: "bold",
     color: GlobalStyles.colors.accent500,
-    marginBottom: 10,
+    marginBottom: 8,
   },
 
   subText: {
     fontSize: 16,
-    color: GlobalStyles.colors.primary200,
-    marginBottom: 26,
+    color: GlobalStyles.colors.primary300,
+    marginBottom: 24,
     textAlign: "center",
   },
 
   authContent: {
     width: "100%",
-    padding: 16,
-    borderRadius: 14,
-    backgroundColor: GlobalStyles.colors.primary800,
-    elevation: 5,
+    padding: 18,
+    borderRadius: 16,
+    backgroundColor: GlobalStyles.colors.primary600,
     shadowColor: "rgba(0, 0, 0, 0.2)",
     shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.7,
-    shadowRadius: 7,
+    shadowOpacity: 0.5,
+    shadowRadius: 6,
+    elevation: 3,
   },
 
   switchButton: {
-    paddingHorizontal: 18,
+    paddingHorizontal: 16,
     alignSelf: "center",
-    marginTop: 22,
+    marginTop: 24,
   },
 
   switchText: {
     textAlign: "center",
     color: GlobalStyles.colors.accent500,
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: "bold",
     textDecorationLine: "underline",
   },
 
   forgotPassword: {
-    marginTop: 14,
+    marginTop: 16,
     alignSelf: "center",
   },
 
@@ -173,10 +177,10 @@ const styles = StyleSheet.create({
     color: GlobalStyles.colors.accent500,
     fontSize: 15,
     textDecorationLine: "underline",
-    fontWeight: "bold"
+    fontWeight: "bold",
   },
 
   pressed: {
-    opacity: 0.7,
+    opacity: 0.8,
   },
 });

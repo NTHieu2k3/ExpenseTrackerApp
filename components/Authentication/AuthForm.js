@@ -107,24 +107,18 @@ const styles = StyleSheet.create({
     marginVertical: 30,
     marginHorizontal: 16,
     padding: 24,
-    backgroundColor: GlobalStyles.colors.primary300,
-    borderRadius: 12,
-    elevation: 6,
-    shadowColor: "rgba(0, 0, 0, 0.2)",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.6,
-    shadowRadius: 6,
   },
 
   button: {
-    borderRadius: 8,
+    borderRadius: 10,
     paddingVertical: 14,
     paddingHorizontal: 20,
     backgroundColor: GlobalStyles.colors.primary500,
     shadowColor: "rgba(0, 0, 0, 0.2)",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.7,
-    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.5,
+    shadowRadius: 4,
+    elevation: 3,
   },
 
   buttons: {
@@ -132,12 +126,12 @@ const styles = StyleSheet.create({
   },
 
   pressed: {
-    opacity: 0.7,
+    opacity: 0.8,
   },
 
   buttonText: {
     textAlign: "center",
-    color: "white",
+    color: GlobalStyles.colors.primary50,
     fontSize: 18,
     fontWeight: "bold",
   },

@@ -225,12 +225,17 @@ export async function reauthenticateUser(email, oldPassword) {
 
 export async function support(prompt) {
   try {
+    const instruction =
+      "Chỉ trả lời về những vấn đề liên quan đến chi tiêu và tiết kiệm, bao gồm giá cả hàng hóa, dịch vụ, vé tham quan, và các cách tiết kiệm tiền. Nếu câu hỏi không liên quan, hãy từ chối. | Only respond to questions related to spending and saving, including the prices of goods, services, tickets, and ways to save money. If the question is unrelated, please refuse.";
+
+    const fullPrompt = `${instruction} Câu hỏi của người dùng | User's question: ${prompt}`;
+
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
-    const result = await model.generateContent(prompt);
+    const result = await model.generateContent(fullPrompt);
     const response = await result.response;
     return response.text();
   } catch (error) {
     console.error("Gemini API Error:", error.message);
-    return "Your assistant is not available. Please try again late !  ";
+    return "Your assistant is not available. Please try again later!";
   }
 }

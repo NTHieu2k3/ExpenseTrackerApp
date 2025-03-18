@@ -25,11 +25,6 @@ const styles = StyleSheet.create({
     paddingVertical: 10, // Tăng chiều cao để dễ bấm
     paddingHorizontal: 12,
     backgroundColor: GlobalStyles.colors.primary500,
-    shadowColor: "#000", // Hiệu ứng nổi trên iOS
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3, // Hiệu ứng nổi trên Android
   },
 
   flat: {

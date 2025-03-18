@@ -18,7 +18,7 @@ import { GlobalStyles } from "../../constants/styles";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import IconButton from "../../components/UI/IconButton";
 import Button from "../../components/UI/Button";
-import { MaterialIcons, FontAwesome5 } from "@expo/vector-icons";
+import { FontAwesome5 } from "@expo/vector-icons";
 
 function UpdateSalary({ navigation }) {
   const authCtx = useContext(AuthContex);
@@ -27,9 +27,11 @@ function UpdateSalary({ navigation }) {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [salaryData, setSalaryData] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     async function loadSalary() {
+      setIsLoading(true);
       try {
         const year = selectedDate.getFullYear();
         const month = selectedDate.getMonth() + 1;
@@ -46,6 +48,7 @@ function UpdateSalary({ navigation }) {
       } catch (error) {
         Alert.alert("Error", "Failed to load salary data.");
       }
+      setIsLoading(false);
     }
     loadSalary();
   }, [selectedDate]);
@@ -62,7 +65,7 @@ function UpdateSalary({ navigation }) {
       Alert.alert("Error", "Please enter your salary.");
       return;
     }
-
+    setIsLoading(true);
     const year = selectedDate.getFullYear();
     const month = selectedDate.getMonth() + 1;
     const newSalary = parseFloat(salary);
@@ -83,6 +86,7 @@ function UpdateSalary({ navigation }) {
     } catch (error) {
       Alert.alert("Error", "Failed to update salary.");
     }
+    setIsLoading(false);
   }
 
   return (
@@ -241,6 +245,6 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 16,
-    textAlign:'center'
+    textAlign: "center",
   },
 });

@@ -105,12 +105,7 @@ function ExpenseForm({ onCancel, onSubmit, submitButtonLabel, defaultValues }) {
   }
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={styles.form}
-    >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <ScrollView>
+        <View style={styles.form}> 
           <Text style={styles.title}>Your Expense</Text>
           <View style={styles.inputsRow}>
             <Input
@@ -190,9 +185,7 @@ function ExpenseForm({ onCancel, onSubmit, submitButtonLabel, defaultValues }) {
               {submitButtonLabel}
             </Button>
           </View>
-        </ScrollView>
-      </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+        </View>
   );
 }
 
@@ -200,8 +193,9 @@ export default ExpenseForm;
 
 const styles = StyleSheet.create({
   form: {
-    marginTop: 40,
-    backgroundColor: GlobalStyles.colors.primary700
+    flex: 1,
+    backgroundColor: GlobalStyles.colors.primary700,
+    marginBottom: 20 
   },
 
   title: {
@@ -228,6 +222,7 @@ const styles = StyleSheet.create({
   },
 
   buttons: {
+    flex: 1,
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",

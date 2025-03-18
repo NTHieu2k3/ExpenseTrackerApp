@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import { AuthContex } from "../store/auth-contex";
 import { fetchExpenses, fetchMonthlySalary } from "../util/http";
 import {
@@ -38,7 +38,10 @@ function ChartExpenses({ refresh }) {
     { value: 0, color: GlobalStyles.colors.success500, text: "Còn dư" },
   ]);
 
-  const filteredExpenses = filterExpenses(expenses);
+  const filteredExpenses = useMemo(
+    () => filterExpenses(expenses),
+    [expenses, filterType, selectedYear, selectedMonth, selectedWeek]
+  );
 
   useEffect(() => {
     async function getIncome() {

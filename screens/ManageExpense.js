@@ -1,5 +1,13 @@
 import { useContext, useLayoutEffect, useState } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import {
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native";
 import { GlobalStyles } from "../constants/styles";
 import { ExpensesContex } from "../store/expenses-contex";
 import { storeExpense, updateExpense, deleteExpense } from "../util/http";
@@ -73,24 +81,35 @@ function ManageExpense({ route, navigation }) {
   }
 
   return (
-    <ScrollView style={styles.container}>
-      <ExpenseForm
-        submitButtonLabel={isEditing ? "Update" : "Add"}
-        onCancel={cancelHandler}
-        onSubmit={confirmHandler}
-        defaultValues={selectedExpense}
-      />
-      {isEditing && (
-        <View style={styles.deleteContainer}>
-          <IconButton
-            icon="trash"
-            color={GlobalStyles.colors.error500}
-            size={36}
-            onPress={deleteExpenseHandler}
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "position"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 64 : 0}
+      style={styles.container}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <ScrollView
+          contentContainerStyle={styles.scrollContainer}
+          keyboardShouldPersistTaps="handled"
+        >
+          <ExpenseForm
+            submitButtonLabel={isEditing ? "Update" : "Add"}
+            onCancel={cancelHandler}
+            onSubmit={confirmHandler}
+            defaultValues={selectedExpense}
           />
-        </View>
-      )}
-    </ScrollView>
+          {isEditing && (
+            <View style={styles.deleteContainer}>
+              <IconButton
+                icon="trash"
+                color={GlobalStyles.colors.error500}
+                size={36}
+                onPress={deleteExpenseHandler}
+              />
+            </View>
+          )}
+        </ScrollView>
+      </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -98,17 +117,26 @@ export default ManageExpense;
 
 const styles = StyleSheet.create({
   container: {
+    paddingBottom: 20,
     flex: 1,
     padding: 24,
     backgroundColor: GlobalStyles.colors.primary700,
   },
 
+  scrollContainer: {
+    flexGrow: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  
   deleteContainer: {
+    width: '100%',
     flex: 1,
     marginTop: 10,
     paddingTop: 8,
     borderTopWidth: 2,
     borderTopColor: GlobalStyles.colors.primary200,
     alignItems: "center",
+    marginBottom: 20 
   },
 });

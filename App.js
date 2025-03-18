@@ -69,6 +69,7 @@ function ExpensesOverview() {
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="hourglass" size={size} color={color} />
           ),
+          headerTitleAlign: 'center',
         }}
       />
       <BottomTabs.Screen
@@ -80,6 +81,7 @@ function ExpensesOverview() {
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="calendar" size={size} color={color} />
           ),
+          headerTitleAlign: "center",
         }}
       />
       <BottomTabs.Screen
@@ -91,6 +93,7 @@ function ExpensesOverview() {
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="stats-chart-outline" size={size} color={color} />
           ),
+          headerTitleAlign: "center",
         }}
       />
       <BottomTabs.Screen
@@ -102,6 +105,7 @@ function ExpensesOverview() {
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="person" size={size} color={color} />
           ),
+          headerTitleAlign: "center",
         }}
       />
     </BottomTabs.Navigator>
@@ -157,6 +161,7 @@ function AuthenticatedStack() {
         component={ManageExpense}
         options={{
           presentation: "modal",
+          headerTitleAlign: "center",
         }}
       />
       <Stack.Screen

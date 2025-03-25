@@ -154,8 +154,13 @@ const styles = StyleSheet.create({
   item: {
     paddingVertical: 16,
     paddingHorizontal: 24,
-    backgroundColor: GlobalStyles.colors.primary500,
-    borderRadius: 8,
+    backgroundColor: GlobalStyles.colors.primary700,
+    borderRadius: 6,
+    elevation: 3,
+    shadowColor: GlobalStyles.colors.gray500,
+    shadowRadius: 4,
+    shadowOffset: { width: 1, height: 1 },
+    shadowOpacity: 0.4,
     marginBottom: 12,
   },
   pressed: {

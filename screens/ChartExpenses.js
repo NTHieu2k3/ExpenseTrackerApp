@@ -16,6 +16,7 @@ import { useFocusEffect } from "@react-navigation/native";
 
 import IconButton from "../components/UI/IconButton";
 import ExpensesOutput from "../components/ExpensesOutput/ExpensesOutput";
+import { calculateBudget } from "../util/calculateBudget";
 
 function ChartExpenses({ refresh }) {
   const authCtx = useContext(AuthContex);
@@ -34,8 +35,9 @@ function ChartExpenses({ refresh }) {
   const [totalRemaining, setTotalRemaining] = useState(0);
 
   const [pieChartData, setPieChartData] = useState([
-    { value: 0, color: GlobalStyles.colors.primary500, text: "Chi tiêu" },
-    { value: 0, color: GlobalStyles.colors.success500, text: "Còn dư" },
+    { value: 0, color: GlobalStyles.colors.primary500, text: "Spending" },
+    { value: 0, color: GlobalStyles.colors.gray500, text: "Remaining" },
+    { value: 0, color: GlobalStyles.colors.gray500, text: "Saving" },
   ]);
 
   const filteredExpenses = useMemo(
@@ -76,51 +78,19 @@ function ChartExpenses({ refresh }) {
           }
         }
 
-        let computedIncome, computedSavings, spendingBudget;
+        const { totalExpenses, totalSavings, totalRemaining, spendingBudget } =
+          calculateBudget(salaryData, filteredExpenses, filterType);
 
-        if (filterType === "week") {
-          computedIncome = (salaryData.salary || 0) / 4;
-          computedSavings = (salaryData.savingsGoal || 0) / 4;
-        } else if (filterType === "year") {
-          computedIncome = (salaryData.salary || 0) * 12;
-          computedSavings = (salaryData.savingsGoal || 0) * 12;
-        } else {
-          computedIncome = salaryData.salary || 0;
-          computedSavings = salaryData.savingsGoal || 0;
-        }
-
-        spendingBudget = Math.round(computedIncome - computedSavings);
         setSpendingBudget(spendingBudget);
+        setTotalExpenses(totalExpenses);
+        setTotalSavings(totalSavings);
+        setTotalRemaining(totalRemaining);
 
-        const totalExpense =
-          filteredExpenses && filteredExpenses.length > 0
-            ? filteredExpenses.reduce((sum, expense) => sum + expense.amount, 0)
-            : 0;
-
-        let remainingAmount = spendingBudget - totalExpense;
-
-        if (remainingAmount < 0) {
-          let deficit = Math.abs(remainingAmount);
-          if (computedSavings >= deficit) {
-            computedSavings = Math.round(computedSavings - deficit);
-            remainingAmount = 0;
-          } else {
-            remainingAmount = 0;
-            computedSavings = 0;
-          }
-        } else {
-          remainingAmount = Math.round(remainingAmount);
-        }
-
-        setTotalExpenses(totalExpense);
-        setTotalSavings(computedSavings);
-        setTotalRemaining(remainingAmount);
-
-        let totalUsed = totalExpense + computedSavings + remainingAmount;
-        let expensesPercentage = Math.round((totalExpense / totalUsed) * 100);
-        let savingsPercentage = Math.round((computedSavings / totalUsed) * 100);
+        let totalUsed = totalExpenses + totalSavings + totalRemaining;
+        let expensesPercentage = Math.round((totalExpenses / totalUsed) * 100);
+        let savingsPercentage = Math.round((totalSavings / totalUsed) * 100);
         let remainingPercentage = Math.round(
-          (remainingAmount / totalUsed) * 100
+          (totalRemaining / totalUsed) * 100
         );
 
         const updatedPieChartData = [];

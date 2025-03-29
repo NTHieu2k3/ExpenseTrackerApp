@@ -1,13 +1,4 @@
-import {
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableWithoutFeedback,
-  View,
-} from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { useState } from "react";
 import { getFormattedDate } from "../../util/date";
 import { GlobalStyles } from "../../constants/styles";
@@ -105,87 +96,94 @@ function ExpenseForm({ onCancel, onSubmit, submitButtonLabel, defaultValues }) {
   }
 
   return (
-        <View style={styles.form}> 
-          <Text style={styles.title}>Your Expense</Text>
-          <View style={styles.inputsRow}>
-            <Input
-              style={styles.rowInput}
-              label="Amount"
-              invalid={!inputs.amount.isValid}
-              textInputConfig={{
-                keyboardType: "decimal-pad",
-                onChangeText: inputChangedHandler.bind(this, "amount"),
-                value: inputs.amount.value,
-              }}
-            />
-            <View style={styles.dateContainer}>
-              <Input
-                label="Date"
-                invalid={!inputs.date.isValid}
-                textInputConfig={{
-                  editable: false,
-                  value: inputs.date.value,
-                }}
-              />
-              <IconButton
-                icon="calendar"
-                color="white"
-                size={24}
-                onPress={() => setShowDatePicker(true)}
-              />
-              {showDatePicker && (
-                <DateTimePicker
-                  value={new Date(inputs.date.value || Date.now())}
-                  mode="date"
-                  display="default"
-                  onChange={dateChangedHandler}
-                />
-              )}
-            </View>
-          </View>
+    <View style={styles.form}>
+      <Text style={styles.title}>Your Expense</Text>
+      <View style={styles.inputsRow}>
+        <Input
+          style={styles.rowInput}
+          label="Amount"
+          invalid={!inputs.amount.isValid}
+          textInputConfig={{
+            keyboardType: "decimal-pad",
+            onChangeText: inputChangedHandler.bind(this, "amount"),
+            value: inputs.amount.value,
+          }}
+        />
+        <View style={styles.dateContainer}>
           <Input
-            label="Description"
-            invalid={!inputs.description.isValid}
+            label="Date"
+            invalid={!inputs.date.isValid}
             textInputConfig={{
-              multiline: true,
-              onChangeText: inputChangedHandler.bind(this, "description"),
-              value: inputs.description.value,
+              editable: false,
+              value: inputs.date.value,
             }}
           />
-          <Text style={styles.categoryTitle}>Categories</Text>
-          <View style={styles.categoryContainer}>
-            {CATEGORIES.map((category) => (
-              <View key={category.id} style={styles.categoryBox}>
-                <IconButton
-                  icon={category.icon}
-                  size={32}
-                  color={selectedCategory === category.id ? GlobalStyles.colors.accent500 : "white"}
-                  onPress={() => selectCategoryHandler(category.id)}
-                />
-                <Text
-                  style={[
-                    styles.categoryText,
-                    selectedCategory === category.id &&
-                      styles.selectedCategoryText,
-                  ]}
-                >
-                  {category.name}
-                </Text>
-              </View>
-            ))}
-          </View>
-          {!categoryIsValid && (
-            <Text style={styles.errorText}>Please selecstyle={styles.buttons}t a category!</Text>
+          <IconButton
+            icon="calendar"
+            color="white"
+            size={24}
+            onPress={() => setShowDatePicker(true)}
+          />
+          {showDatePicker && (
+            <DateTimePicker
+              value={
+                inputs.date.value ? new Date(inputs.date.value) : new Date()
+              }
+              mode="date"
+              display="default"
+              onChange={dateChangedHandler}
+            />
           )}
-          <View style={styles.buttons}>
-            <Button style={styles.button} mode="flat" onPress={onCancel}>
-              Cancel
-            </Button>
-            <Button style={styles.button} onPress={submidHandler}>
-              {submitButtonLabel}
-            </Button>
-          </View>
         </View>
+      </View>
+      <Input
+        label="Description"
+        invalid={!inputs.description.isValid}
+        textInputConfig={{
+          multiline: true,
+          onChangeText: inputChangedHandler.bind(this, "description"),
+          value: inputs.description.value,
+        }}
+      />
+      <Text style={styles.categoryTitle}>Categories</Text>
+      <View style={styles.categoryContainer}>
+        {CATEGORIES.map((category) => (
+          <View key={category.id} style={styles.categoryBox}>
+            <IconButton
+              icon={category.icon}
+              size={32}
+              color={
+                selectedCategory === category.id
+                  ? GlobalStyles.colors.accent500
+                  : "white"
+              }
+              onPress={() => selectCategoryHandler(category.id)}
+            />
+            <Text
+              style={[
+                styles.categoryText,
+                selectedCategory === category.id && styles.selectedCategoryText,
+              ]}
+            >
+              {category.name}
+            </Text>
+          </View>
+        ))}
+      </View>
+      {!categoryIsValid && (
+        <Text style={styles.errorText}>
+          Please selecstyle={styles.buttons}t a category!
+        </Text>
+      )}
+      <View style={styles.buttons}>
+        <Button style={styles.button} mode="flat" onPress={onCancel}>
+          Cancel
+        </Button>
+        <Button style={styles.button} onPress={submidHandler}>
+          {submitButtonLabel}
+        </Button>
+      </View>
+    </View>
   );
 }
 
@@ -195,7 +193,7 @@ const styles = StyleSheet.create({
   form: {
     flex: 1,
     backgroundColor: GlobalStyles.colors.primary700,
-    marginBottom: 20 
+    marginBottom: 20,
   },
 
   title: {
@@ -267,7 +265,6 @@ const styles = StyleSheet.create({
     color: GlobalStyles.colors.primary100,
     marginBottom: 4,
   },
-
 
   categoryText: {
     fontSize: 13,

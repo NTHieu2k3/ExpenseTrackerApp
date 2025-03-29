@@ -13,10 +13,11 @@ import { BarChart, PieChart } from "react-native-gifted-charts";
 import { GlobalStyles } from "../constants/styles";
 import { ExpensesContex } from "../store/expenses-contex";
 import { useFocusEffect } from "@react-navigation/native";
+import { filterExpenses } from "../util/filterExpenses";
+import { calculateBudget } from "../util/calculateBudget";
 
 import IconButton from "../components/UI/IconButton";
 import ExpensesOutput from "../components/ExpensesOutput/ExpensesOutput";
-import { calculateBudget } from "../util/calculateBudget";
 
 function ChartExpenses({ refresh }) {
   const authCtx = useContext(AuthContex);
@@ -41,7 +42,14 @@ function ChartExpenses({ refresh }) {
   ]);
 
   const filteredExpenses = useMemo(
-    () => filterExpenses(expenses),
+    () =>
+      filterExpenses(
+        expenses,
+        filterType,
+        selectedYear,
+        selectedMonth,
+        selectedWeek
+      ),
     [expenses, filterType, selectedYear, selectedMonth, selectedWeek]
   );
 
@@ -264,38 +272,6 @@ function ChartExpenses({ refresh }) {
     }));
 
     return { data, title };
-  }
-
-  function filterExpenses(expenses) {
-    if (!Array.isArray(expenses)) return [];
-    return expenses.filter((expense) => {
-      const expenseDate = new Date(expense.date);
-      if (filterType === "week") {
-        const currentDate = new Date();
-        const startOfWeek = new Date(currentDate);
-        const dayOfWeek = currentDate.getDay();
-        startOfWeek.setDate(
-          currentDate.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1)
-        );
-        startOfWeek.setDate(startOfWeek.getDate() + selectedWeek * 7);
-        const endOfWeek = new Date(startOfWeek);
-        endOfWeek.setDate(startOfWeek.getDate() + 6);
-        startOfWeek.setHours(0, 0, 0, 0);
-        endOfWeek.setHours(23, 59, 59, 999);
-        return expenseDate >= startOfWeek && expenseDate <= endOfWeek;
-      }
-
-      if (filterType === "month") {
-        return (
-          expenseDate.getFullYear() === selectedYear &&
-          expenseDate.getMonth() + 1 === selectedMonth
-        );
-      }
-      if (filterType === "year") {
-        return expenseDate.getFullYear() === selectedYear;
-      }
-      return false;
-    });
   }
 
   const [selectedFilter, setSelectedFilter] = useState("week");

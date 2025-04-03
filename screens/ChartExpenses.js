@@ -166,6 +166,7 @@ function ChartExpenses({ refresh }) {
         selectedMonth,
         selectedWeek
       );
+      
       if (data.length > 0) {
         setChartData(data);
       } else {
@@ -328,7 +329,7 @@ function ChartExpenses({ refresh }) {
               size={28}
               onPress={() => {
                 Alert.alert(
-                  "Feature not yet complete",
+                  "PDF Report not yet complete",
                   "We are developing this feature. Please try again later!",
                   [{ text: "OK", style: "default" }]
                 );

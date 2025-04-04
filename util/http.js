@@ -158,6 +158,19 @@ export async function authenticate(mode, email, password) {
   const token = response.data.idToken;
   const uid = response.data.localId;
   console.log("authenticate - UID:", uid);
+
+  if (mode === "signUp") {
+    await sendEmailVerification(token);
+    console.log("Verification email sent to:", email);
+  }
+  
+  if (mode === "signInWithPassword") {
+    const user = await getUserInfo(token);
+    if (!user.emailVerified) {
+      throw new Error("Please verify your email.");
+    }
+  }
+
   return { token, uid };
 }
 
@@ -167,6 +180,30 @@ export function createAccount(email, password) {
 
 export function login(email, password) {
   return authenticate("signInWithPassword", email, password);
+}
+
+async function sendEmailVerification(idToken) {
+  try {
+    const url = `https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${API_KEY}`;
+    await axios.post(url, {
+      idToken: idToken,
+      requestType: "VERIFY_EMAIL",
+    });
+  } catch (error) {
+    console.error(
+      "Error sending email verification:",
+      error.response?.data?.error?.message
+    );
+    throw error;
+  }
+}
+
+async function getUserInfo(idToken) {
+  const url = `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${API_KEY}`;
+  const response = await axios.post(url, {
+    idToken: idToken,
+  });
+  return response.data.users[0];
 }
 
 export async function changePassword(idToken, newPassword) {
@@ -237,4 +274,12 @@ export async function support(prompt) {
     console.error("Gemini API Error:", error.message);
     return "Your assistant is not available. Please try again later!";
   }
+}
+
+export async function storePhoneNumber(token, phoneNumber, uid) {
+  console.log("storePhoneNumber - UID:", uid);
+
+  await axios.patch(`${BACKEND_URL}/phoneNumbers/${uid}.json?auth=${token}`, {
+    phoneNumber,
+  });
 }

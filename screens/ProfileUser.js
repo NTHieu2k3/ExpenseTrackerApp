@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Pressable } from "react-native";
+import { StyleSheet, Text, View, Pressable, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { GlobalStyles } from "../constants/styles";
 import { useContext, useState } from "react";
@@ -20,6 +20,14 @@ function ProfileUser() {
     }, 1500);
   }
 
+  function waitingDev() {
+    Alert.alert(
+      "Feature in Development",
+      "We are currently working on this feature. Please check back later!",
+      [{ text: "OK", style: "default" }]
+    );
+  }
+
   if (isLoading) {
     return <LoadingOverlay />;
   }
@@ -28,7 +36,7 @@ function ProfileUser() {
     <View style={styles.container}>
       <Pressable
         style={({ pressed }) => [styles.item, pressed && styles.pressed]}
-        onPress={() => {}}
+        onPress={waitingDev}
       >
         <View style={styles.row}>
           <Ionicons
@@ -47,7 +55,7 @@ function ProfileUser() {
 
       <Pressable
         style={({ pressed }) => [styles.item, pressed && styles.pressed]}
-        onPress={() => {}}
+        onPress={waitingDev}
       >
         <View style={styles.row}>
           <Ionicons
@@ -113,6 +121,25 @@ function ProfileUser() {
             color={GlobalStyles.colors.accent500}
           />
           <Text style={styles.text}>Change Password</Text>
+          <Ionicons
+            name="chevron-forward-outline"
+            size={24}
+            color={GlobalStyles.colors.accent500}
+          />
+        </View>
+      </Pressable>
+
+      <Pressable
+        style={({ pressed }) => [styles.item, pressed && styles.pressed]}
+        onPress={() => navigation.navigate("VerifyPhoneNumber")}
+      >
+        <View style={styles.row}>
+          <Ionicons
+            name="call-outline"
+            size={24}
+            color={GlobalStyles.colors.accent500}
+          />
+          <Text style={styles.text}>Verify Phone Number</Text>
           <Ionicons
             name="chevron-forward-outline"
             size={24}

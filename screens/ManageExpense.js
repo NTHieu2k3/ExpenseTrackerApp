@@ -1,5 +1,6 @@
 import { useContext, useLayoutEffect, useState } from "react";
 import {
+  Alert,
   Keyboard,
   KeyboardAvoidingView,
   Platform,
@@ -46,7 +47,7 @@ function ManageExpense({ route, navigation }) {
       expensesCtx.deleteExpense(editedExpenseId);
       navigation.goBack();
     } catch (error) {
-      setError("Could not delete expense - Please try again later !");
+      Alert.alert("Could not delete expense - Please try again later !");
       setIsSubmitting(false);
     }
   }
@@ -128,15 +129,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  
+
   deleteContainer: {
-    width: '100%',
+    width: "100%",
     flex: 1,
     marginTop: 10,
     paddingTop: 8,
     borderTopWidth: 2,
     borderTopColor: GlobalStyles.colors.primary200,
     alignItems: "center",
-    marginBottom: 20 
+    marginBottom: 20,
   },
 });

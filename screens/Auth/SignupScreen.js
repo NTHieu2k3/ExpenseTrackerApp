@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { checkEmailExists, createAccount } from "../../util/http";
+import { createAccount } from "../../util/http";
 import { Alert, StyleSheet } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
@@ -15,7 +15,7 @@ function SignupScreen() {
     setIsAuthenticating(true);
     try {
       await createAccount(email, password);
-      Alert.alert("Success", "Your account has been created successfully.", [
+      Alert.alert("Success", "Your account has been created successfully. Please verify your email address to continue !", [
         { text: "OK", onPress: () => navigation.navigate("Login") },
       ]);
       return;

@@ -23,6 +23,8 @@ import SupportScreen from "./screens/SupportScreen";
 import WelcomeScreen from "./screens/WelcomScreen";
 import UpdateSalary from "./screens/UpdateScreen/UpdateSalary";
 import SearchExpense from "./screens/SearchExpense";
+import SplashScreen from "./screens/SplashScreen";
+import VerifyPhoneNumber from "./screens/Auth/VerifyPhoneNumber";
 
 const Stack = createNativeStackNavigator();
 const BottomTabs = createBottomTabNavigator();
@@ -69,7 +71,7 @@ function ExpensesOverview() {
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="hourglass" size={size} color={color} />
           ),
-          headerTitleAlign: 'center',
+          headerTitleAlign: "center",
         }}
       />
       <BottomTabs.Screen
@@ -122,6 +124,11 @@ function AuthStack() {
         headerTintColor: "white",
       }}
     >
+      <Stack.Screen
+        name="SplashScreen"
+        component={SplashScreen}
+        options={{ headerShown: false }}
+      />
       <Stack.Screen
         name="Login"
         component={LoginScreen}
@@ -177,6 +184,11 @@ function AuthenticatedStack() {
       <Stack.Screen
         name="SearchExpense"
         component={SearchExpense}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="VerifyPhoneNumber"
+        component={VerifyPhoneNumber}
         options={{ headerShown: false }}
       />
       <Stack.Screen

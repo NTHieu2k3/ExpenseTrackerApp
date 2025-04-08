@@ -17,7 +17,7 @@ function LoginScreen() {
 
     try {
       const { token, uid } = await login(email, password);
-      authCtx.authenticate(token, uid, email);
+      authCtx.authenticate(token, uid, email, false);
     } catch (error) {
       if (error.message === "Please verify your email.") {
         Alert.alert(

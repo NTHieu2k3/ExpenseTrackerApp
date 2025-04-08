@@ -285,11 +285,13 @@ function ChartExpenses({ refresh }) {
   //Hàm xử lý chọn bộ lọc
   const [selectedFilter, setSelectedFilter] = useState("week");
 
+  //Xử lý thay đổi thời gian
   function handleFilterChange(filter) {
     setSelectedFilter(filter);
     setFilterType(filter);
   }
 
+  //Xử lý hiển thị label
   const getTimePeriodLabel = (filterType) => {
     switch (filterType) {
       case "week":

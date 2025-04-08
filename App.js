@@ -223,8 +223,9 @@ function Root() {
     async function fetchToken() {
       const storedToken = await AsyncStorage.getItem("token");
       const storedUid = await AsyncStorage.getItem("uid");
+      const storedEmail = await AsyncStorage.getItem("email");
       if (storedToken && storedUid) {
-        authCtx.authenticate(storedToken, storedUid);
+        authCtx.authenticate(storedToken, storedUid, storedEmail, true);
       }
       setIsTryingLogin(false);
     }

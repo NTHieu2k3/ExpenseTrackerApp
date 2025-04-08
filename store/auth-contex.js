@@ -17,13 +17,13 @@ function AuthContexProvider({ children }) {
   const [email, setEmail] = useState(null);
 
   //Đăng nhập, lưu token để tự động đăng nhập lần tiếp theo và lưu uid để thực hiện các chức năng khác
-  function authenticate(token, uid, email) {
+  function authenticate(token, uid, email, fromStorage = false) {
     setAuthToken(token);
     setUserId(uid);
     setEmail(email);
     AsyncStorage.setItem("token", token);
     AsyncStorage.setItem("uid", uid);
-    AsyncStorage.setItem("tokenUsed", "true");
+    AsyncStorage.setItem("tokenUsed", fromStorage ? "true" : "false");
   }
 
   function logout() {

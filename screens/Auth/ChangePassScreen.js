@@ -51,7 +51,7 @@ function ChangePasswordScreen({ navigation }) {
       return;
     }
 
-    if (newPassword.length < 6) {
+    if (newPassword.length < 7) {
       Alert.alert("ERROR", "Password must be at least 6 characters !");
       return;
     }
@@ -67,16 +67,10 @@ function ChangePasswordScreen({ navigation }) {
       Alert.alert(
         "SUCCESSED",
         "Password changed successfully ! Please Login again to continue !",
-        [
-          {
-            text: "Cancel",
-            style: "cancel",
-          },
-          {
-            text: "OK",
-            onPress: () => authCtx.logout(),
-          },
-        ]
+        {
+          text: "OK",
+          onPress: () => authCtx.logout(),
+        }
       );
       navigation.goBack();
     } catch (error) {
@@ -166,33 +160,39 @@ const styles = StyleSheet.create({
     backgroundColor: GlobalStyles.colors.primary700,
     paddingHorizontal: 24,
   },
+  
   scrollContainer: {
     flexGrow: 1,
     justifyContent: "center",
     padding: 24,
   },
+
   headerContainer: {
     alignItems: "center",
     marginBottom: 20,
   },
+
   title: {
     fontSize: 24,
     fontWeight: "bold",
     color: GlobalStyles.colors.primary50,
     marginTop: 8,
   },
+
   subtitle: {
     fontSize: 16,
     color: GlobalStyles.colors.primary100,
     textAlign: "center",
     marginTop: 4,
   },
+
   label: {
     color: GlobalStyles.colors.primary100,
     fontSize: 18,
     fontWeight: "600",
     marginBottom: 8,
   },
+
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -202,28 +202,25 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 12,
   },
+
   input: {
     flex: 1,
     fontSize: 16,
     color: GlobalStyles.colors.primary700,
   },
-  button: {
-    backgroundColor: GlobalStyles.colors.accent500,
-    paddingVertical: 16,
-    borderRadius: 12,
-    alignItems: "center",
-    marginTop: 20,
-  },
+
   buttonText: {
     color: GlobalStyles.colors.primary50,
     fontSize: 16,
     fontWeight: "bold",
   },
+
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "center",
     marginTop: 12,
   },
+  
   button: {
     flex: 1,
     marginHorizontal: 5,

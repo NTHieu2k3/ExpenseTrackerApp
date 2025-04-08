@@ -150,6 +150,7 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderColor: GlobalStyles.colors.primary400,
     padding: 10,
+    paddingBottom: 30,
     alignItems: "center",
   },
   input: {

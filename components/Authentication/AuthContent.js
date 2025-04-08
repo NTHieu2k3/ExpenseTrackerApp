@@ -2,10 +2,10 @@ import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
 import { useState } from "react";
 import { GlobalStyles } from "../../constants/styles";
 import { useNavigation } from "@react-navigation/native";
-import { Ionicons } from "@expo/vector-icons";
 
 import AuthForm from "./AuthForm";
 import ForgotPasswordForm from "../../screens/Auth/ForgotPassForm";
+import IconButton from "../UI/IconButton";
 
 function AuthContent({ isLogin, onAuthenticate }) {
   const [credentialIsInvalid, setCredentialIsInvalid] = useState({
@@ -63,12 +63,15 @@ function AuthContent({ isLogin, onAuthenticate }) {
 
   return (
     <View style={styles.authContainer}>
-      <Ionicons
-        name="wallet-outline"
-        size={50}
-        color={GlobalStyles.colors.accent500}
+      <IconButton
+        icon="wallet-outline"
+        size={70}
+        color="white"
+        onPress={() => {
+          Alert.alert("Welcome!", "Sign in to track your spending ");
+        }}
       />
-      <Text style={styles.headerText}>EXPENSES MANAGEMENT</Text>
+      <Text style={styles.headerText}>Expenses Management</Text>
       <Text style={styles.subText}>
         {isLogin
           ? "Sign in to track your spending !"
@@ -93,7 +96,7 @@ function AuthContent({ isLogin, onAuthenticate }) {
               ]}
               onPress={() => setIsForgotPassword(true)}
             >
-              <Text style={styles.forgotText}>Forgot Password?</Text>
+              <Text style={styles.forgotText}>Forgot Password ?</Text>
             </Pressable>
           </View>
         )}
@@ -126,20 +129,20 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 20,
-    backgroundColor: GlobalStyles.colors.primary800,
+    backgroundColor: GlobalStyles.colors.primary700,
     flex: 1,
   },
 
   headerText: {
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: "bold",
-    color: GlobalStyles.colors.accent500,
+    color: "white",
     marginBottom: 8,
   },
 
   subText: {
     fontSize: 16,
-    color: GlobalStyles.colors.primary300,
+    color: GlobalStyles.colors.primary200,
     marginBottom: 24,
     textAlign: "center",
   },
@@ -148,12 +151,12 @@ const styles = StyleSheet.create({
     width: "100%",
     padding: 18,
     borderRadius: 16,
-    backgroundColor: GlobalStyles.colors.primary600,
-    shadowColor: "rgba(0, 0, 0, 0.2)",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.5,
-    shadowRadius: 6,
+    backgroundColor: GlobalStyles.colors.primary700,
     elevation: 3,
+    shadowColor: GlobalStyles.colors.gray500,
+    shadowRadius: 4,
+    shadowOffset: { width: 1, height: 1 },
+    shadowOpacity: 0.4,
   },
 
   switchButton: {
@@ -164,7 +167,7 @@ const styles = StyleSheet.create({
 
   switchText: {
     textAlign: "center",
-    color: GlobalStyles.colors.accent500,
+    color: GlobalStyles.colors.primary200,
     fontSize: 16,
     fontWeight: "bold",
     textDecorationLine: "underline",
@@ -176,7 +179,7 @@ const styles = StyleSheet.create({
   },
 
   forgotText: {
-    color: GlobalStyles.colors.accent500,
+    color: GlobalStyles.colors.primary200,
     fontSize: 15,
     textDecorationLine: "underline",
     fontWeight: "bold",

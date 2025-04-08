@@ -104,9 +104,9 @@ export default AuthForm;
 
 const styles = StyleSheet.create({
   form: {
-    marginVertical: 30,
-    marginHorizontal: 16,
-    padding: 24,
+    marginVertical: 20,
+    marginHorizontal: 13,
+    padding: 15,
   },
 
   button: {

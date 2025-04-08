@@ -32,7 +32,7 @@ function SplashScreen({ navigation }) {
           style={styles.icon}
         />
         <Text style={styles.splashText}>
-          Welcome to the expense management app !
+          Welcome to The Expense Management App !
         </Text>
         <Text style={styles.subText}>
           Track, plan and control your finances the smart way.

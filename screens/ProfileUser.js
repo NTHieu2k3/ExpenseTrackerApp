@@ -12,6 +12,7 @@ function ProfileUser() {
   const [isLoading, setIsLoading] = useState(false);
   const navigation = useNavigation();
 
+  //Xử lý button Logout
   function logoutHandler() {
     setIsLoading(true);
     setTimeout(() => {
@@ -20,6 +21,7 @@ function ProfileUser() {
     }, 1500);
   }
 
+  //Xử lý các function chưa làm
   function waitingDev() {
     Alert.alert(
       "Feature in Development",

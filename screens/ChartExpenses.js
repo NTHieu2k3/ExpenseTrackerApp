@@ -41,6 +41,7 @@ function ChartExpenses({ refresh }) {
     { value: 0, color: GlobalStyles.colors.gray500, text: "Saving" },
   ]);
 
+  //Lọc chi tiêu theo thời gian
   const filteredExpenses = useMemo(
     () =>
       filterExpenses(
@@ -53,6 +54,7 @@ function ChartExpenses({ refresh }) {
     [expenses, filterType, selectedYear, selectedMonth, selectedWeek]
   );
 
+  //Lấy dữ liệu lương và tính toán ngân sách cho piechart
   useEffect(() => {
     async function getIncome() {
       try {
@@ -139,10 +141,12 @@ function ChartExpenses({ refresh }) {
     getIncome();
   }, [expenses, selectedMonth, selectedYear, filterType, filteredExpenses]);
 
+  //Cập nhật chi tiêu khi context thay đổi
   useEffect(() => {
     setExpenses(expensesCtx.expenses);
   }, [expensesCtx.expenses]);
 
+  //Lấy dữ liệu chi tiêu từ server
   useEffect(() => {
     async function getExpenses() {
       try {
@@ -157,6 +161,7 @@ function ChartExpenses({ refresh }) {
     getExpenses();
   }, [authCtx.token, authCtx.uid, refresh]);
 
+  //Xử lý dữ liệu để hiển thị BarChart
   useEffect(() => {
     if (expenses.length > 0) {
       const { data, title } = processExpenses(
@@ -166,7 +171,7 @@ function ChartExpenses({ refresh }) {
         selectedMonth,
         selectedWeek
       );
-      
+
       if (data.length > 0) {
         setChartData(data);
       } else {
@@ -179,6 +184,7 @@ function ChartExpenses({ refresh }) {
     }
   }, [expenses, filterType, selectedYear, selectedMonth, selectedWeek]);
 
+  //Reset bộ lọc khi focus lại màn hình
   useFocusEffect(
     React.useCallback(() => {
       setSelectedYear(new Date().getFullYear());
@@ -187,6 +193,7 @@ function ChartExpenses({ refresh }) {
     }, [])
   );
 
+  //Hàm xử lý biểu đồ theo thời gian
   function processExpenses(expenses, type, year, month, week) {
     const currentDate = new Date();
     const dataMap = new Map();
@@ -275,6 +282,7 @@ function ChartExpenses({ refresh }) {
     return { data, title };
   }
 
+  //Hàm xử lý chọn bộ lọc
   const [selectedFilter, setSelectedFilter] = useState("week");
 
   function handleFilterChange(filter) {

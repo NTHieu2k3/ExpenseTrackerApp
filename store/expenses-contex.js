@@ -5,6 +5,7 @@ import { filterExpenses } from "../util/filterExpenses";
 import { calculateBudget } from "../util/calculateBudget";
 import { Alert } from "react-native";
 
+//Tạo ctx để share dữ liệu giữa các component
 export const ExpensesContex = createContext({
   expenses: [],
   addExpense: ({ description, amount, date, category }) => {},
@@ -13,6 +14,7 @@ export const ExpensesContex = createContext({
   updateExpense: (id, { description, amount, date, category }) => {},
 });
 
+//Xử lý các hành động với danh sách chi tiêu
 function expensesReducer(state, action) {
   switch (action.type) {
     case "ADD":
@@ -38,6 +40,7 @@ function ExpensesContexProvider({ children }) {
   const [expensesState, dispatch] = useReducer(expensesReducer, []);
   const authCtx = useContext(AuthContex);
 
+  //Lấy dữ liệu lương theo tháng và năm
   async function fetchSalaryData(selectedYear, selectedMonth) {
     try {
       let salaryData = await fetchMonthlySalary(
@@ -77,10 +80,12 @@ function ExpensesContexProvider({ children }) {
     }
   }
 
+  
   function getSelectedWeek(expenseDate) {
     return expenseDate;
   }
 
+  //Kiểm tra và thông báo cho người dùng khi Add/Update có bị vượt qua ngân sách chi tiêu còn lại hay không 
   async function validateAndAddExpense(expenseData, isUpdate = false) {
     const { id, date, amount, category } = expenseData;
     if (!id || !date || !amount || !category) {

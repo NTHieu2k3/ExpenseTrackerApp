@@ -3,7 +3,6 @@ import {
   View,
   Text,
   TextInput,
-  Pressable,
   Alert,
   StyleSheet,
   KeyboardAvoidingView,
@@ -16,6 +15,8 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import { AuthContex } from "../../store/auth-contex";
 import { GlobalStyles } from "../../constants/styles";
 import { changePassword } from "../../util/http";
+
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import IconButton from "../../components/UI/IconButton";
 import LoadingOverlay from "../../components/UI/LoadingOverlay";
 import Button from "../../components/UI/Button";
@@ -28,7 +29,28 @@ function ChangePasswordScreen({ navigation }) {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  //Xử lý button Change
   async function submitHandler() {
+    const hasUsedToken = await AsyncStorage.getItem("tokenUsed");
+
+    if (hasUsedToken === "true") {
+      Alert.alert(
+        "WARNING!",
+        "Please Log out and Sign in again before Changing your password !",
+        [
+          {
+            text: "Cancel",
+            style: "cancel",
+          },
+          {
+            text: "OK",
+            onPress: () => authCtx.logout(),
+          },
+        ]
+      );
+      return;
+    }
+
     if (newPassword.length < 6) {
       Alert.alert("ERROR", "Password must be at least 6 characters !");
       return;
@@ -42,7 +64,20 @@ function ChangePasswordScreen({ navigation }) {
 
     try {
       await changePassword(authCtx.token, newPassword);
-      Alert.alert("SUCCESSED", "Password changed successfully !");
+      Alert.alert(
+        "SUCCESSED",
+        "Password changed successfully ! Please Login again to continue !",
+        [
+          {
+            text: "Cancel",
+            style: "cancel",
+          },
+          {
+            text: "OK",
+            onPress: () => authCtx.logout(),
+          },
+        ]
+      );
       navigation.goBack();
     } catch (error) {
       Alert.alert(

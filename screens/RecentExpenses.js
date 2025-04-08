@@ -16,6 +16,7 @@ function RecentExpenses() {
   const authCtx = useContext(AuthContex);
   const expensesCtx = useContext(ExpensesContex);
 
+  //Load expenses khi token và uid thay đổi (khi vừa đăng nhập)
   useEffect(() => {
     async function getExpenses() {
       setIsFetching(true);
@@ -38,12 +39,14 @@ function RecentExpenses() {
     return <LoadingOverlay />;
   }
 
+  //Lọc expenses trong 7 ngày gần nhất về trước tính từ ngày hôm nay
   const recentExpenses = expensesCtx.expenses.filter((expense) => {
     const today = new Date();
     const date7DaysAgo = getDateMinusDays(today, 7);
 
     return expense.date > date7DaysAgo && expense.date <= today;
   });
+
   return (
     <View style={styles.container}>
       <ExpensesOutput

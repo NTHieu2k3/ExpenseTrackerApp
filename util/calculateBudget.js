@@ -1,3 +1,4 @@
+//Tính toán ngân sách chi tiêu, tiết kiệm và còn lại sau chi tiêu
 export function calculateBudget(salaryData, filteredExpenses, filterType) {
   let computedIncome, computedSavings, spendingBudget;
 

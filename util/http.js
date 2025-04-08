@@ -10,6 +10,7 @@ const API_KEY = "AIzaSyCoRmYnDnHXOhKfT1_p4M1rpfH9kWt8Hps";
 const GEMINI_API_KEY = "AIzaSyA5OwpXqow_NanA_u2YO6CNvktmXX2ppSE";
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
+//Thêm lương tháng
 export async function storeMonthlySalary(token, salary, savingsGoal, uid) {
   console.log("storeMonthlySalary - UID:", uid);
 
@@ -24,6 +25,7 @@ export async function storeMonthlySalary(token, salary, savingsGoal, uid) {
   );
 }
 
+//Lấy thông tin lương tháng
 export async function fetchMonthlySalary(token, uid, year, month) {
   console.log("fetchMonthlySalary - UID:", uid, "Year:", year, "Month:", month);
 
@@ -53,6 +55,7 @@ export async function fetchMonthlySalary(token, uid, year, month) {
   };
 }
 
+//Cập nhật lương và mục tiêu tiết kiệm của tháng hiện tại và coppy sang tháng tiếp theo nếu chưa có 
 export async function updateMonthlySalary(
   token,
   salary,
@@ -101,6 +104,7 @@ export async function updateMonthlySalary(
   }
 }
 
+//Thêm chi tiêu
 export async function storeExpense(expenseData, token, uid) {
   console.log("storeExpense - UID:", uid);
   const response = await axios.post(
@@ -111,6 +115,7 @@ export async function storeExpense(expenseData, token, uid) {
   return id;
 }
 
+//Lấy thông tin các chi tiêu
 export async function fetchExpenses(token, uid) {
   console.log("fetchExpenses - UID:", uid);
   const response = await axios.get(
@@ -133,6 +138,7 @@ export async function fetchExpenses(token, uid) {
   return expenses;
 }
 
+//Sửa
 export async function updateExpense(id, expenseData, token, uid) {
   console.log("updateExpense - UID:", uid);
   return axios.put(
@@ -141,6 +147,7 @@ export async function updateExpense(id, expenseData, token, uid) {
   );
 }
 
+//Xóa
 export async function deleteExpense(id, token, uid) {
   console.log("deleteExpense - UID:", uid);
   return axios.delete(
@@ -148,6 +155,7 @@ export async function deleteExpense(id, token, uid) {
   );
 }
 
+//Xác thực và xử lý đăng ký/đăng nhập
 export async function authenticate(mode, email, password) {
   const url = `https://identitytoolkit.googleapis.com/v1/accounts:${mode}?key=${API_KEY}`;
   const response = await axios.post(url, {
@@ -174,14 +182,17 @@ export async function authenticate(mode, email, password) {
   return { token, uid };
 }
 
+//Đăng ký
 export function createAccount(email, password) {
   return authenticate("signUp", email, password);
 }
 
+//Đăng nhập
 export function login(email, password) {
   return authenticate("signInWithPassword", email, password);
 }
 
+//Gửi email xác thực
 async function sendEmailVerification(idToken) {
   try {
     const url = `https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${API_KEY}`;
@@ -198,6 +209,7 @@ async function sendEmailVerification(idToken) {
   }
 }
 
+//Lấy thông tin người dùng
 async function getUserInfo(idToken) {
   const url = `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${API_KEY}`;
   const response = await axios.post(url, {
@@ -206,6 +218,7 @@ async function getUserInfo(idToken) {
   return response.data.users[0];
 }
 
+//Thay đổi mật khẩu
 export async function changePassword(idToken, newPassword) {
   const url = `https://identitytoolkit.googleapis.com/v1/accounts:update?key=${API_KEY}`;
   await axios.post(url, {
@@ -215,6 +228,7 @@ export async function changePassword(idToken, newPassword) {
   });
 }
 
+//Kiểm tra tồn tại email
 export async function checkEmailExists(email) {
   try {
     await axios.post(
@@ -231,6 +245,7 @@ export async function checkEmailExists(email) {
   }
 }
 
+//Quên mật khẩu
 export async function resetPassword(email) {
   const url = `https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=${API_KEY}`;
 
@@ -242,6 +257,7 @@ export async function resetPassword(email) {
   }
 }
 
+//Xác thực lại người dùng và mật khẩu khi đổi thông tin
 export async function reauthenticateUser(email, oldPassword) {
   const url = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${API_KEY}`;
   try {
@@ -260,6 +276,7 @@ export async function reauthenticateUser(email, oldPassword) {
   }
 }
 
+//Chat bot gemini
 export async function support(prompt) {
   try {
     const instruction =
@@ -268,7 +285,7 @@ export async function support(prompt) {
 
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
     const result = await model.generateContent(fullPrompt);
-    const response = await result.response;
+    const response = result.response;
     return response.text();
   } catch (error) {
     console.error("Gemini API Error:", error.message);
@@ -276,6 +293,7 @@ export async function support(prompt) {
   }
 }
 
+//Thêm SĐT người dùng
 export async function storePhoneNumber(token, phoneNumber, uid) {
   console.log("storePhoneNumber - UID:", uid);
 

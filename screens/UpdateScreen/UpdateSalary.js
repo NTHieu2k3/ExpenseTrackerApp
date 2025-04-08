@@ -29,6 +29,7 @@ function UpdateSalary({ navigation }) {
   const [salaryData, setSalaryData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  //Chạy mỗi khi selectedDate thay đổi để get lương từ db
   useEffect(() => {
     async function loadSalary() {
       setIsLoading(true);
@@ -53,6 +54,7 @@ function UpdateSalary({ navigation }) {
     loadSalary();
   }, [selectedDate]);
 
+  //Xử lý khi người dùng chọn ngày từ DateTimePicker
   function dateChangedHandler(event, newDate) {
     if (newDate) {
       setSelectedDate(new Date(newDate.getFullYear(), newDate.getMonth(), 1));
@@ -60,6 +62,7 @@ function UpdateSalary({ navigation }) {
     setShowDatePicker(false);
   }
 
+  //Xử lý button Update
   async function handleUpdate() {
     if (!salary.trim()) {
       Alert.alert("Error", "Please enter your salary.");
@@ -68,8 +71,10 @@ function UpdateSalary({ navigation }) {
     setIsLoading(true);
     const year = selectedDate.getFullYear();
     const month = selectedDate.getMonth() + 1;
-    const newSalary = parseFloat(salary);
-    const newSavingsGoal = savingsGoal ? parseFloat(savingsGoal) : 0;
+    const newSalary = parseFloat(salary.replace(",", "."));
+    const newSavingsGoal = savingsGoal.replace(",", ".")
+      ? parseFloat(savingsGoal.replace(",", "."))
+      : 0;
 
     try {
       await updateMonthlySalary(
@@ -136,7 +141,7 @@ function UpdateSalary({ navigation }) {
             <Text style={styles.dollarSign}>$</Text>
             <TextInput
               style={styles.input}
-              keyboardType="numeric"
+              keyboardType="decimal-pad"
               value={salary}
               onChangeText={setSalary}
               placeholder="Enter amount..."
@@ -149,7 +154,7 @@ function UpdateSalary({ navigation }) {
             <Text style={styles.dollarSign}>$</Text>
             <TextInput
               style={styles.input}
-              keyboardType="numeric"
+              keyboardType="decimal-pad"
               value={savingsGoal}
               onChangeText={setSavingsGoal}
               placeholder="Enter amount..."

@@ -21,7 +21,7 @@ function VerifyPhoneNumber({ navigation }) {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  // Function to handle the phone number input and save to the backend
+  // Xử lý button Save để lưu SĐT vào db
   async function handleVerify() {
     if (!phoneNumber.trim()) {
       Alert.alert("Error", "Please enter a phone number.");

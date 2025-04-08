@@ -20,6 +20,7 @@ function SupportScreen() {
   const [messages, setMessages] = useState([]);
   const listRef = useRef(null);
 
+  //Xử lý button Send
   async function handleSendMessage() {
     if (!inputText.trim()) return;
 

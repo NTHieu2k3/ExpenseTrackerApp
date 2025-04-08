@@ -19,6 +19,7 @@ function AuthContent({ isLogin, onAuthenticate }) {
 
   const navigation = useNavigation();
 
+  //Xử lý chuyển đổi đăng nhập/đăng ký
   function switchAuthModeHandler() {
     if (isForgotPassword) {
       setIsForgotPassword(false);
@@ -31,6 +32,7 @@ function AuthContent({ isLogin, onAuthenticate }) {
     }
   }
 
+  //Xử lý đăng nhập/đăng ký
   function submitHandler(credentials) {
     let { email, confirmEmail, password, confirmPassword } = credentials;
 

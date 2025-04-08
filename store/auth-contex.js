@@ -1,4 +1,4 @@
-import { createContext,  useState } from "react";
+import { createContext, useState } from "react";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -16,12 +16,14 @@ function AuthContexProvider({ children }) {
   const [userId, setUserId] = useState();
   const [email, setEmail] = useState(null);
 
+  //Đăng nhập, lưu token để tự động đăng nhập lần tiếp theo và lưu uid để thực hiện các chức năng khác
   function authenticate(token, uid, email) {
     setAuthToken(token);
     setUserId(uid);
     setEmail(email);
     AsyncStorage.setItem("token", token);
     AsyncStorage.setItem("uid", uid);
+    AsyncStorage.setItem("tokenUsed", "true");
   }
 
   function logout() {
@@ -30,6 +32,7 @@ function AuthContexProvider({ children }) {
     setUserId(null);
     AsyncStorage.removeItem("token");
     AsyncStorage.removeItem("uid");
+    AsyncStorage.removeItem("tokenUsed");
   }
 
   const value = {

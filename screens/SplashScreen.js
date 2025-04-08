@@ -6,6 +6,7 @@ import { GlobalStyles } from "../constants/styles";
 function SplashScreen({ navigation }) {
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
+  //Thực hiện animation mờ dần
   useEffect(() => {
     Animated.timing(fadeAnim, {
       toValue: 1,
@@ -13,6 +14,7 @@ function SplashScreen({ navigation }) {
       useNativeDriver: true,
     }).start();
 
+    //Set time chuyển sang Login
     const timer = setTimeout(() => {
       navigation.replace("Login");
     }, 4000);

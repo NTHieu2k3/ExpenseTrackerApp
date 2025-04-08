@@ -2,6 +2,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { GlobalStyles } from "../../constants/styles";
 
 function ExpensesSumary({ expenses = [], periodName }) {
+  //Tính tổng
   const expensesSum = expenses.reduce((sum, expense) => {
     return sum + (expense.amount || 0);
   }, 0);

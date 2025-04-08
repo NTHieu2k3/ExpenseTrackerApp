@@ -27,6 +27,7 @@ function SearchExpense() {
   const { token, uid } = authCtx;
   const navigation = useNavigation();
 
+  //Get tất cả expenses
   useEffect(() => {
     async function getExpenses() {
       setIsLoading(true);
@@ -41,10 +42,12 @@ function SearchExpense() {
     getExpenses();
   }, [token, uid]);
 
+  //Hiển thị DateTimePicker
   function showDatePicker() {
     setShowPicker(true);
   }
 
+  //Xử lý khi thay đổi ngày
   function onChange(event, date) {
     setShowPicker(Platform.OS === "ios");
     if (date) {
@@ -53,6 +56,7 @@ function SearchExpense() {
     setShowPicker(false);
   }
 
+  //Lọc các expense theo ngày
   const filteredExpenses = expenses.filter((expense) => {
     const expenseDate = new Date(expense.date);
     return (

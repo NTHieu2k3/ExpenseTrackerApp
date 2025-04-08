@@ -27,6 +27,7 @@ function ManageExpense({ route, navigation }) {
   const editedExpenseId = route.params?.expenseId;
   const isEditing = !!editedExpenseId;
 
+  //Tìm expense đang chỉnh sửa trong danh sách
   const selectedExpense = expensesCtx.expenses.find(
     (expenese) => expenese.id === editedExpenseId
   );
@@ -34,12 +35,14 @@ function ManageExpense({ route, navigation }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState();
 
+  //Cập nhật tiêu đề Edit hay Add
   useLayoutEffect(() => {
     navigation.setOptions({
       title: isEditing ? "Edit Expense" : "Add Expense",
     });
   }, [navigation, isEditing]);
 
+  //Xử lý button(icon trash) Delete
   async function deleteExpenseHandler() {
     setIsSubmitting(true);
     try {
@@ -60,6 +63,7 @@ function ManageExpense({ route, navigation }) {
     navigation.goBack();
   }
 
+  //Xử lý button Update/Add
   async function confirmHandler(expenseData) {
     setIsSubmitting(true);
     try {

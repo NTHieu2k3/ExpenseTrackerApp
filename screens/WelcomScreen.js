@@ -21,24 +21,26 @@ function WelcomeScreen({ navigation }) {
   const authCtx = useContext(AuthContex);
   const { token, uid } = authCtx;
 
+  //Kiểm tra lương tháng và tiết kiệm xem có chưa để hiển thị form nhập
   useEffect(() => {
     async function checkSalary() {
       const { year, month } = getCurrentMonthYear();
       const savedData = await fetchMonthlySalary(token, uid, year, month);
-  
+
       if (savedData.salary && savedData.savingsGoal) {
         navigation.replace("ExpensesOverview");
       } else {
         setIsLoading(false);
       }
     }
-  
+
     checkSalary();
   }, []);
 
+  //Xử lý button Save khi người dùng nhập xong
   async function submitSalaryHandler() {
-    const numericSalary = parseFloat(salary);
-    const numericSavingsGoal = parseFloat(savingsGoal);
+    const numericSalary = parseFloat(salary.replace(",", "."));
+    const numericSavingsGoal = parseFloat(savingsGoal.replace(",", "."));
 
     if (isNaN(numericSalary) || numericSalary <= 0) {
       Alert.alert("ERROR", "Please enter a valid number for monthly salary!");
@@ -56,7 +58,7 @@ function WelcomeScreen({ navigation }) {
     }
 
     try {
-      const { year, month } = getCurrentMonthYear(); // Lấy tháng và năm
+      const { year, month } = getCurrentMonthYear();
       await storeMonthlySalary(
         token,
         numericSalary,
@@ -99,7 +101,7 @@ function WelcomeScreen({ navigation }) {
         <TextInput
           style={styles.input}
           placeholder="Your salary"
-          keyboardType="numeric"
+          keyboardType="decimal-pad"
           value={salary}
           onChangeText={setSalary}
         />
@@ -110,7 +112,7 @@ function WelcomeScreen({ navigation }) {
         <TextInput
           style={styles.input}
           placeholder="Your savings goal"
-          keyboardType="numeric"
+          keyboardType="decimal-pad"
           value={savingsGoal}
           onChangeText={setSavingsGoal}
         />

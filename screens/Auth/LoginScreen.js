@@ -11,6 +11,7 @@ function LoginScreen() {
 
   const authCtx = useContext(AuthContex);
 
+  //Xử lý button đăng nhập từ AuthContent
   async function loginHandler({ email, password }) {
     setIsAuthenticating(true);
 

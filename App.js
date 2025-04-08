@@ -114,6 +114,7 @@ function ExpensesOverview() {
   );
 }
 
+//Thêm màn hình chào, đăng nhập, đăng ký vào stack
 function AuthStack() {
   return (
     <Stack.Navigator
@@ -143,6 +144,7 @@ function AuthStack() {
   );
 }
 
+//Thêm các màn hình khác vào stack
 function AuthenticatedStack() {
   return (
     <Stack.Navigator
@@ -200,6 +202,7 @@ function AuthenticatedStack() {
   );
 }
 
+//Xử lý xem đã đăng nhập chưa ? Nếu chưa thì cho đăng nhập còn rồi thì vào màn hình chính luôn
 function Navigation() {
   const authCtx = useContext(AuthContex);
 
@@ -211,11 +214,11 @@ function Navigation() {
   );
 }
 
+//Lấy lại token khi khởi động app nếu còn uid và token (Tự động đăng nhập nếu còn uid và token)
 function Root() {
   const [isTryingLogin, setIsTryingLogin] = useState(true);
 
   const authCtx = useContext(AuthContex);
-
   useEffect(() => {
     async function fetchToken() {
       const storedToken = await AsyncStorage.getItem("token");

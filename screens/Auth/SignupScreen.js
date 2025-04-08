@@ -11,6 +11,7 @@ function SignupScreen() {
 
   const navigation = useNavigation();
 
+   //Xử lý button đăng kys từ AuthContent
   async function signupHandler({ email, password }) {
     setIsAuthenticating(true);
     try {

@@ -17,6 +17,7 @@ import { CATEGORIES } from "../../constants/catergories";
 function ExpensesOutput({ expenses, expensesPeriod, fallbackText }) {
   const [expandedCategories, setExpandedCategories] = useState({});
 
+  //Nhóm các khoản chi tiêu theo category
   const groupedExpenses = (expenses ?? []).reduce((acc, expense) => {
     const categoryId = expense.category;
     if (!acc[categoryId]) {
@@ -26,6 +27,7 @@ function ExpensesOutput({ expenses, expensesPeriod, fallbackText }) {
     return acc;
   }, {});
 
+  //Mở đóng danh sách chi tiêu
   function toggleCategory(category) {
     setExpandedCategories((prev) => ({
       ...prev,

@@ -8,6 +8,7 @@ function ForgotPasswordForm({ onBack }) {
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  //Xử lý button Send Reset Link
   async function submitHandler() {
     if (!email.includes("@")) {
       Alert.alert("INVALID EMAIL", "Please enter a valid email address.");

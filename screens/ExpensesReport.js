@@ -13,11 +13,11 @@ import {
 import { AuthContex } from "../store/auth-contex";
 import { FontAwesome5 } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import * as MailComposer from "expo-mail-composer";
 import { GlobalStyles } from "../constants/styles";
 import { IconButton } from "react-native-paper";
 import Button from "../components/UI/Button";
-import { fetchExpenses } from "../util/http";  // Import your fetchExpenses function
+import { fetchExpenses } from "../util/http";
+import { sendExpenseReportToEmail } from "../util/sendExpenseReport";
 
 function ExpenseReport({ navigation }) {
   const authCtx = useContext(AuthContex);
@@ -55,51 +55,6 @@ function ExpenseReport({ navigation }) {
       setSelectedDate(new Date(newDate.getFullYear(), newDate.getMonth(), 1));
     }
     setShowDatePicker(false);
-  }
-
-  async function sendExpenseReport() {
-    const isAvailable = await MailComposer.isAvailableAsync();
-    if (!isAvailable) {
-      Alert.alert("Error", "No mail app available on this device.");
-      return;
-    }
-
-    const email = authCtx?.email;
-    if (!email) {
-      Alert.alert("Error", "No user email found.");
-      return;
-    }
-
-    const formattedDate = selectedDate.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-    });
-
-    let emailBody = `Here is your expense report for ${formattedDate}:\n\n`;
-
-    let totalAmount = 0;
-    expenses.forEach((expense) => {
-      emailBody += `${expense.category}: $${expense.amount.toFixed(2)} - ${expense.description} on ${expense.date.toLocaleDateString("en-US")}\n\n`;
-      totalAmount += expense.amount;
-    });
-
-    emailBody += `\nTotal Expenses: $${totalAmount.toFixed(2)}`;
-
-    try {
-      await MailComposer.composeAsync({
-        recipients: [email],
-        subject: `Expense Report for ${formattedDate}`,
-        body: emailBody,
-      });
-
-      Alert.alert(
-        "Success",
-        "Check your email if you have sent report !"
-      );
-      navigation.goBack();
-    } catch (error) {
-      Alert.alert("Error", "Failed to prepare the email.");
-    }
   }
 
   return (
@@ -147,7 +102,22 @@ function ExpenseReport({ navigation }) {
           )}
 
           <View style={styles.buttonContainer}>
-            <Button onPress={sendExpenseReport} style={styles.button}>
+            <Button
+              onPress={() =>
+                sendExpenseReportToEmail(
+                  authCtx.email,
+                  expenses,
+                  `Expense Report for ${selectedDate.toLocaleDateString(
+                    "en-US",
+                    {
+                      month: "long",
+                      year: "numeric",
+                    }
+                  )}`
+                )
+              }
+              style={styles.button}
+            >
               Send
             </Button>
             <Button onPress={navigation.goBack} style={styles.button}>

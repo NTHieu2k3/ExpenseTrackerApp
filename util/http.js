@@ -73,7 +73,6 @@ export async function updateMonthlySalary(
     month
   );
 
-  // Cập nhật lương và mục tiêu tiết kiệm cho tháng được chỉ định
   await axios.patch(
     `${BACKEND_URL}/monthlySalary/${uid}/${year}/${month}.json?auth=${token}`,
     {

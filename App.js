@@ -220,21 +220,40 @@ function Navigation() {
   );
 }
 
-
 function Root() {
   const [isTryingLogin, setIsTryingLogin] = useState(true);
 
   const authCtx = useContext(AuthContex);
+  
   useEffect(() => {
     async function fetchToken() {
-      const storedToken = await AsyncStorage.getItem("token");
-      const storedUid = await AsyncStorage.getItem("uid");
-      const storedEmail = await AsyncStorage.getItem("email");
-      if (storedToken && storedUid) {
-        authCtx.authenticate(storedToken, storedUid, storedEmail, true);
+      try {
+        const storedToken = await AsyncStorage.getItem("token");
+        const storedUid = await AsyncStorage.getItem("uid");
+        const storedEmail = await AsyncStorage.getItem("email");
+
+        console.log("Restoring login:", {
+          storedToken,
+          storedUid,
+          storedEmail,
+        });
+
+        if (storedToken && storedUid && storedEmail) {
+          authCtx.authenticate(storedToken, storedUid, storedEmail, true);
+        } else {
+          console.warn("Missing stored values:", {
+            storedToken,
+            storedUid,
+            storedEmail,
+          });
+        }
+      } catch (err) {
+        console.error("Error restoring auth from storage:", err);
       }
+
       setIsTryingLogin(false);
     }
+
     fetchToken();
   }, []);
 

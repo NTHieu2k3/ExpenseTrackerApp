@@ -21,8 +21,12 @@ function AuthContexProvider({ children }) {
     setAuthToken(token);
     setUserId(uid);
     setEmail(email);
+
+    console.log("(authContext) email",email)
+
     AsyncStorage.setItem("token", token);
     AsyncStorage.setItem("uid", uid);
+    AsyncStorage.setItem("email", email);
     AsyncStorage.setItem("tokenUsed", fromStorage ? "true" : "false");
   }
 
@@ -32,6 +36,7 @@ function AuthContexProvider({ children }) {
     setUserId(null);
     AsyncStorage.removeItem("token");
     AsyncStorage.removeItem("uid");
+    AsyncStorage.removeItem("email");
     AsyncStorage.removeItem("tokenUsed");
   }
 

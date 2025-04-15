@@ -21,8 +21,8 @@ export default Button;
 
 const styles = StyleSheet.create({
   button: {
-    borderRadius: 8, // Bo góc mềm hơn
-    paddingVertical: 10, // Tăng chiều cao để dễ bấm
+    borderRadius: 8,
+    paddingVertical: 10,
     paddingHorizontal: 12,
     backgroundColor: GlobalStyles.colors.primary500,
   },
@@ -34,17 +34,17 @@ const styles = StyleSheet.create({
   buttonText: {
     color: "white",
     textAlign: "center",
-    fontSize: 16, // Tăng kích thước chữ để dễ đọc
-    fontWeight: "600", // Làm đậm chữ
+    fontSize: 16,
+    fontWeight: "600",
   },
 
   flatText: {
-    color: GlobalStyles.colors.primary400, // Màu sắc dễ nhìn hơn
+    color: GlobalStyles.colors.primary400,
   },
 
   pressed: {
     opacity: 0.85,
-    backgroundColor: GlobalStyles.colors.primary300, // Làm nổi bật khi nhấn
+    backgroundColor: GlobalStyles.colors.primary300,
     borderRadius: 8, 
   },
 });

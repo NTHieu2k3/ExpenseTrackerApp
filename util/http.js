@@ -55,7 +55,7 @@ export async function fetchMonthlySalary(token, uid, year, month) {
   };
 }
 
-//Cập nhật lương và mục tiêu tiết kiệm của tháng hiện tại và coppy sang tháng tiếp theo nếu chưa có 
+//Cập nhật lương và mục tiêu tiết kiệm của tháng hiện tại và coppy sang tháng tiếp theo nếu chưa có
 export async function updateMonthlySalary(
   token,
   salary,
@@ -73,6 +73,7 @@ export async function updateMonthlySalary(
     month
   );
 
+  // Cập nhật lương và mục tiêu tiết kiệm cho tháng được chỉ định
   await axios.patch(
     `${BACKEND_URL}/monthlySalary/${uid}/${year}/${month}.json?auth=${token}`,
     {
@@ -80,28 +81,6 @@ export async function updateMonthlySalary(
       savingsGoal,
     }
   );
-
-  const nextMonth = month + 1;
-  let nextYear = year;
-  if (nextMonth > 12) {
-    nextYear++;
-  }
-
-  const nextMonthData = await fetchMonthlySalary(
-    token,
-    uid,
-    nextYear,
-    nextMonth
-  );
-  if (!nextMonthData.salary && !nextMonthData.savingsGoal) {
-    await axios.patch(
-      `${BACKEND_URL}/monthlySalary/${uid}/${nextYear}/${nextMonth}.json?auth=${token}`,
-      {
-        salary,
-        savingsGoal,
-      }
-    );
-  }
 }
 
 //Thêm chi tiêu
@@ -165,13 +144,14 @@ export async function authenticate(mode, email, password) {
   });
   const token = response.data.idToken;
   const uid = response.data.localId;
-  console.log("authenticate - UID:", uid);
+
+  console.log("(http)authenticate - UID:", uid, "Email:", email);
 
   if (mode === "signUp") {
     await sendEmailVerification(token);
     console.log("Verification email sent to:", email);
   }
-  
+
   if (mode === "signInWithPassword") {
     const user = await getUserInfo(token);
     if (!user.emailVerified) {

@@ -1,70 +1,147 @@
-import { useEffect, useRef } from "react";
-import { View, Text, StyleSheet, Animated } from "react-native";
-import { FontAwesome5 } from "@expo/vector-icons";
+import React, { useRef, useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Dimensions,
+  FlatList,
+  Animated,
+} from "react-native";
+import LottieView from "lottie-react-native";
+import { Button } from "react-native-paper";
 import { GlobalStyles } from "../constants/styles";
+import { LinearGradient } from "expo-linear-gradient";
+import { useNavigation } from "@react-navigation/native";
 
-function SplashScreen({ navigation }) {
-  const fadeAnim = useRef(new Animated.Value(0)).current;
+const { width, height } = Dimensions.get("window");
 
-  //Thực hiện animation mờ dần
-  useEffect(() => {
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 1500,
-      useNativeDriver: true,
-    }).start();
+const pages = [
+  {
+    key: "1",
+    animation: require("../assets/animations/track.json"),
+    title: "Track Spending",
+    text: "Track your expenses, easily manage your budget.",
+  },
+  {
+    key: "2",
+    animation: require("../assets/animations/plan.json"),
+    title: "Plan Ahead",
+    text: "Plan your future spending to stay on top of your finances.",
+  },
+  {
+    key: "3",
+    animation: require("../assets/animations/control.json"),
+    title: "Stay in Control",
+    text: "Take control of your finances with the right decisions.",
+  },
+];
 
-    //Set time chuyển sang Login
-    const timer = setTimeout(() => {
-      navigation.replace("Login");
-    }, 4000);
-
-    return () => clearTimeout(timer);
-  }, []);
+export default function SplashScreen() {
+  const navigation = useNavigation();
+  const scrollX = useRef(new Animated.Value(0)).current;
+  const [index, setIndex] = useState(0);
 
   return (
-    <View style={styles.container}>
-      <Animated.View style={{ opacity: fadeAnim, alignItems: "center" }}>
-        <FontAwesome5
-          name="chart-line"
-          size={50}
-          color="white"
-          style={styles.icon}
-        />
-        <Text style={styles.splashText}>
-          Welcome to The Expense Management App !
-        </Text>
-        <Text style={styles.subText}>
-          Track, plan and control your finances the smart way.
-        </Text>
-      </Animated.View>
-    </View>
+    <LinearGradient
+      colors={[GlobalStyles.colors.primary700, GlobalStyles.colors.primary900]}
+      style={styles.container}
+    >
+      <Animated.FlatList
+        data={pages}
+        keyExtractor={(item) => item.key}
+        horizontal
+        pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { x: scrollX } } }],
+          { useNativeDriver: false }
+        )}
+        onViewableItemsChanged={
+          useRef(
+            ({ viewableItems }) =>
+              viewableItems.length && setIndex(viewableItems[0].index)
+          ).current
+        }
+        viewabilityConfig={{ viewAreaCoveragePercentThreshold: 50 }}
+        renderItem={({ item }) => (
+          <View style={styles.page}>
+            <LottieView
+              source={item.animation}
+              autoPlay
+              loop
+              style={styles.lottie}
+            />
+            <Text style={styles.title}>{item.title}</Text>
+            <Text style={styles.text}>{item.text}</Text>
+          </View>
+        )}
+      />
+
+      <View style={styles.dots}>
+        {pages.map((_, i) => (
+          <View key={i} style={[styles.dot, i === index && styles.activeDot]} />
+        ))}
+      </View>
+
+      {index === pages.length - 1 && (
+        <Button
+          mode="contained"
+          onPress={() => navigation.replace("Login")}
+          style={styles.button}
+        >
+          Continue
+        </Button>
+      )}
+    </LinearGradient>
   );
 }
 
-export default SplashScreen;
-
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  container: { flex: 1 },
+  page: {
+    width,
+    height,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: GlobalStyles.colors.primary700,
-    padding: 24,
+    paddingHorizontal: 24,
   },
-  icon: {
-    marginBottom: 20,
-  },
-  splashText: {
-    fontSize: 26,
+  lottie: { width: 250, height: 250, marginBottom: 20 },
+  title: {
+    fontSize: 22,
     fontWeight: "bold",
-    color: "white",
+    color: GlobalStyles.colors.primary50,
     textAlign: "center",
+    marginBottom: 10,
   },
-  subText: {
+  text: {
     fontSize: 16,
-    color: GlobalStyles.colors.primary200,
+    color: GlobalStyles.colors.primary100,
     textAlign: "center",
-    marginTop: 10,
+    paddingHorizontal: 10,
+  },
+  button: {
+    position: "absolute",
+    bottom: 40,
+    left: 20,
+    right: 20,
+  },
+  dots: {
+    flexDirection: "row",
+    justifyContent: "center",
+    position: "absolute",
+    bottom: 100,
+    width: "100%",
+  },
+  dot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: GlobalStyles.colors.primary300,
+    marginHorizontal: 5,
+  },
+  activeDot: {
+    backgroundColor: GlobalStyles.colors.accent500,
+    width: 14,
+    height: 14,
   },
 });

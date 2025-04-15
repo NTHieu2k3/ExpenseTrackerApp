@@ -131,6 +131,15 @@ function ChartExpenses({ refresh }) {
             tooltipText: "Saving",
           });
         }
+        
+        if (updatedPieChartData.length === 0) {
+          updatedPieChartData.push({
+            value: 1,
+            color: GlobalStyles.colors.gray500,
+            text: `0%`,
+            tooltipText: "No data",
+          });
+        }
 
         setPieChartData(updatedPieChartData);
       } catch (error) {

@@ -25,6 +25,7 @@ import UpdateSalary from "./screens/UpdateScreen/UpdateSalary";
 import SearchExpense from "./screens/SearchExpense";
 import SplashScreen from "./screens/SplashScreen";
 import VerifyPhoneNumber from "./screens/Auth/VerifyPhoneNumber";
+import ExpenseReport from "./screens/ExpensesReport";
 
 const Stack = createNativeStackNavigator();
 const BottomTabs = createBottomTabNavigator();
@@ -184,6 +185,11 @@ function AuthenticatedStack() {
         options={{ headerShown: false }}
       />
       <Stack.Screen
+        name="ExpensesReport"
+        component={ExpenseReport}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
         name="SearchExpense"
         component={SearchExpense}
         options={{ headerShown: false }}
@@ -214,7 +220,7 @@ function Navigation() {
   );
 }
 
-//Lấy lại token khi khởi động app nếu còn uid và token (Tự động đăng nhập nếu còn uid và token)
+
 function Root() {
   const [isTryingLogin, setIsTryingLogin] = useState(true);
 

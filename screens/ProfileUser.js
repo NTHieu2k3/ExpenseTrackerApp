@@ -1,4 +1,11 @@
-import { StyleSheet, Text, View, Pressable, Alert } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Pressable,
+  Alert,
+  Linking,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { GlobalStyles } from "../constants/styles";
 import { useContext, useState } from "react";
@@ -6,6 +13,7 @@ import { AuthContex } from "../store/auth-contex";
 import { useNavigation } from "@react-navigation/native";
 
 import LoadingOverlay from "../components/UI/LoadingOverlay";
+import * as MailComposer from "expo-mail-composer";
 
 function ProfileUser() {
   const authCtx = useContext(AuthContex);
@@ -33,6 +41,40 @@ function ProfileUser() {
   if (isLoading) {
     return <LoadingOverlay />;
   }
+
+  const sendReport = async () => {
+    const email = authCtx.email;
+    if (!email) {
+      Alert.alert("Email not found", "User email is missing from context.");
+      return;
+    }
+    console.log("Preparing to send email to:", email);
+
+    const isAvailable = await MailComposer.isAvailableAsync();
+    if (!isAvailable) {
+      Alert.alert(
+        "Mail app not available",
+        "Please install a mail app (e.g., Gmail, Outlook) to send reports."
+      );
+      return;
+    }
+
+    try {
+      await MailComposer.composeAsync({
+        recipients: [email],
+        subject: "Your Expense Report",
+        body: "This is your generated expense report. Thank you for using our app!",
+      });
+
+      Alert.alert(
+        "Email ready!",
+        "The email draft was opened in your mail app."
+      );
+    } catch (error) {
+      console.log("Error composing email:", error);
+      Alert.alert("Error", "Something went wrong while preparing the email.");
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -142,6 +184,25 @@ function ProfileUser() {
             color={GlobalStyles.colors.accent500}
           />
           <Text style={styles.text}>Verify Phone Number</Text>
+          <Ionicons
+            name="chevron-forward-outline"
+            size={24}
+            color={GlobalStyles.colors.accent500}
+          />
+        </View>
+      </Pressable>
+
+      <Pressable
+        style={({ pressed }) => [styles.item, pressed && styles.pressed]}
+        onPress={() => navigation.navigate("ExpensesReport")}
+      >
+        <View style={styles.row}>
+          <Ionicons
+            name="document-text-outline"
+            size={24}
+            color={GlobalStyles.colors.accent500}
+          />
+          <Text style={styles.text}>Expense report</Text>
           <Ionicons
             name="chevron-forward-outline"
             size={24}

@@ -1,8 +1,8 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useState } from "react";
 import { GlobalStyles } from "../../constants/styles";
-
 import AuthInput from "./AuthInput";
+import * as Animatable from "react-native-animatable";
 
 function AuthForm({ isLogin, onSubmit, credentialsInvalid }) {
   const [enteredEmail, setEnteredEmail] = useState("");
@@ -31,8 +31,6 @@ function AuthForm({ isLogin, onSubmit, credentialsInvalid }) {
       case "confirmPassword":
         setEnteredConfirmPassword(enteredValue);
         break;
-      default:
-        break;
     }
   }
 
@@ -46,57 +44,46 @@ function AuthForm({ isLogin, onSubmit, credentialsInvalid }) {
   }
 
   return (
-    <View style={styles.form}>
-      <View>
+    <Animatable.View animation="fadeInUp" duration={800} style={styles.form}>
+      <AuthInput
+        label="Email Address"
+        onUpdateValue={updateInputValueHandler.bind(this, "email")}
+        value={enteredEmail}
+        keyboardType="email-address"
+        isInvalid={emailIsInvalid}
+      />
+      {!isLogin && (
         <AuthInput
-          label="Email Address"
-          onUpdateValue={updateInputValueHandler.bind(this, "email")}
-          value={enteredEmail}
+          label="Confirm Email Address"
+          onUpdateValue={updateInputValueHandler.bind(this, "confirmEmail")}
+          value={enteredConfirmEmail}
           keyboardType="email-address"
-          isInvalid={emailIsInvalid}
+          isInvalid={emailsDontMatch}
         />
-        {!isLogin && (
-          <AuthInput
-            label="Confirm Email Address"
-            onUpdateValue={updateInputValueHandler.bind(this, "confirmEmail")}
-            value={enteredConfirmEmail}
-            keyboardType="email-address"
-            isInvalid={emailsDontMatch}
-          />
-        )}
+      )}
+      <AuthInput
+        label="Password"
+        onUpdateValue={updateInputValueHandler.bind(this, "password")}
+        value={enteredPassword}
+        secure
+        isInvalid={passwordIsInvalid}
+      />
+      {!isLogin && (
         <AuthInput
-          label="Password"
-          onUpdateValue={updateInputValueHandler.bind(this, "password")}
-          value={enteredPassword}
+          label="Confirm Password"
+          onUpdateValue={updateInputValueHandler.bind(this, "confirmPassword")}
+          value={enteredConfirmPassword}
           secure
-          isInvalid={passwordIsInvalid}
+          isInvalid={passwordsDontMatch}
         />
-        {!isLogin && (
-          <AuthInput
-            label="Confirm Password"
-            onUpdateValue={updateInputValueHandler.bind(
-              this,
-              "confirmPassword"
-            )}
-            value={enteredConfirmPassword}
-            secure
-            isInvalid={passwordsDontMatch}
-          />
-        )}
-        <View style={styles.buttons}>
-          <Pressable
-            style={({ pressed }) => [styles.button, pressed && styles.pressed]}
-            onPress={submitHandler}
-          >
-            <View>
-              <Text style={styles.buttonText}>
-                {isLogin ? "Log In" : "Sign Up"}
-              </Text>
-            </View>
-          </Pressable>
-        </View>
-      </View>
-    </View>
+      )}
+      <Pressable
+        style={({ pressed }) => [styles.button, pressed && styles.pressed]}
+        onPress={submitHandler}
+      >
+        <Text style={styles.buttonText}>{isLogin ? "Log In" : "Sign Up"}</Text>
+      </Pressable>
+    </Animatable.View>
   );
 }
 
@@ -104,39 +91,27 @@ export default AuthForm;
 
 const styles = StyleSheet.create({
   form: {
-    marginVertical: 20,
-    marginHorizontal: 13,
-    padding: 15,
+    marginTop: 10,
+    paddingHorizontal: 6,
   },
-
   button: {
+    marginTop: 22,
     borderRadius: 10,
     paddingVertical: 14,
-    paddingHorizontal: 20,
-    backgroundColor: GlobalStyles.colors.primary500,
-    shadowColor: "rgba(0, 0, 0, 0.2)",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.5,
-    shadowRadius: 4,
-    elevation: 3,
+    backgroundColor: GlobalStyles.colors.accent500,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    elevation: 5,
   },
-
-  buttons: {
-    marginTop: 24,
-  },
-
   pressed: {
     opacity: 0.8,
   },
-
   buttonText: {
-    textAlign: "center",
     color: GlobalStyles.colors.primary50,
     fontSize: 18,
     fontWeight: "bold",
-  },
-
-  input: {
-    flex: 1,
+    textAlign: "center",
   },
 });

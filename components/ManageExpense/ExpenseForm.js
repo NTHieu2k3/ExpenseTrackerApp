@@ -1,13 +1,13 @@
-import { StyleSheet, Text, View } from "react-native";
 import { useState } from "react";
-import { getFormattedDate } from "../../util/date";
+import { StyleSheet, Text, View, Animated, Pressable } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { GlobalStyles } from "../../constants/styles";
 import { CATEGORIES } from "../../constants/catergories";
-
-import DateTimePicker from "@react-native-community/datetimepicker";
+import IconButton from "../UI/IconButton";
 import Input from "./Input";
 import Button from "../UI/Button";
-import IconButton from "../UI/IconButton";
+import { getFormattedDate } from "../../util/date";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 function ExpenseForm({ onCancel, onSubmit, submitButtonLabel, defaultValues }) {
   const [inputs, setInputs] = useState({
@@ -30,9 +30,16 @@ function ExpenseForm({ onCancel, onSubmit, submitButtonLabel, defaultValues }) {
   );
   const [categoryIsValid, setCategoryIsValid] = useState(true);
 
+  const scaleAnim = useState(new Animated.Value(1))[0];
+
   function selectCategoryHandler(categoryId) {
     setSelectedCategory(categoryId);
     setCategoryIsValid(true);
+    // Chạy animation để tăng kích thước icon khi chọn
+    Animated.spring(scaleAnim, {
+      toValue: 1.2,
+      useNativeDriver: true,
+    }).start();
   }
 
   function inputChangedHandler(inputIdenfifier, enteredValue) {
@@ -148,32 +155,49 @@ function ExpenseForm({ onCancel, onSubmit, submitButtonLabel, defaultValues }) {
       <Text style={styles.categoryTitle}>Categories</Text>
       <View style={styles.categoryContainer}>
         {CATEGORIES.map((category) => (
-          <View key={category.id} style={styles.categoryBox}>
-            <IconButton
-              icon={category.icon}
-              size={32}
-              color={
-                selectedCategory === category.id
-                  ? GlobalStyles.colors.accent500
-                  : "white"
-              }
-              onPress={() => selectCategoryHandler(category.id)}
-            />
-            <Text
+          <Pressable
+            key={category.id}
+            onPress={() => selectCategoryHandler(category.id)}
+            style={({ pressed }) => [
+              styles.categoryBox,
+              selectedCategory === category.id && styles.selectedCategoryBox,
+              pressed && { opacity: 0.7 },
+            ]}
+          >
+            <Animated.View
               style={[
-                styles.categoryText,
-                selectedCategory === category.id && styles.selectedCategoryText,
+                styles.categoryContent,
+                {
+                  transform: [
+                    { scale: selectedCategory === category.id ? scaleAnim : 1 },
+                  ],
+                },
               ]}
             >
-              {category.name}
-            </Text>
-          </View>
+              <Ionicons
+                name={category.icon}
+                size={selectedCategory === category.id ? 36 : 32}
+                color={
+                  selectedCategory === category.id
+                    ? GlobalStyles.colors.accent500
+                    : "white"
+                }
+              />
+              <Text
+                style={[
+                  styles.categoryText,
+                  selectedCategory === category.id &&
+                    styles.selectedCategoryText,
+                ]}
+              >
+                {category.name}
+              </Text>
+            </Animated.View>
+          </Pressable>
         ))}
       </View>
       {!categoryIsValid && (
-        <Text style={styles.errorText}>
-          Please selecstyle={styles.buttons}t a category!
-        </Text>
+        <Text style={styles.errorText}>Please select a category!</Text>
       )}
       <View style={styles.buttons}>
         <Button style={styles.button} mode="flat" onPress={onCancel}>
@@ -195,7 +219,6 @@ const styles = StyleSheet.create({
     backgroundColor: GlobalStyles.colors.primary700,
     marginBottom: 20,
   },
-
   title: {
     fontSize: 18,
     fontWeight: "bold",
@@ -203,34 +226,28 @@ const styles = StyleSheet.create({
     marginVertical: 24,
     textAlign: "center",
   },
-
   inputsRow: {
     flexDirection: "row",
     justifyContent: "space-between",
   },
-
   rowInput: {
     flex: 1,
   },
-
   errorText: {
     textAlign: "center",
     color: GlobalStyles.colors.error500,
     margin: 8,
   },
-
   buttons: {
     flex: 1,
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
   },
-
   button: {
     minWidth: 120,
     marginHorizontal: 8,
   },
-
   dateContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -239,13 +256,11 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: GlobalStyles.colors.primary400,
   },
-
   categoryContainer: {
     flexDirection: "row",
     justifyContent: "center",
     flexWrap: "wrap",
   },
-
   categoryBox: {
     width: "30%",
     aspectRatio: 1,
@@ -253,25 +268,31 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderRadius: 8,
     padding: 5,
-    marginBottom: 10,
+    marginBottom: 20,
+    marginLeft: 8,
     borderWidth: 1,
     borderColor: GlobalStyles.colors.primary400,
+    backgroundColor: GlobalStyles.colors.primary600,
     margin: 3,
   },
-
+  selectedCategoryBox: {
+    backgroundColor: GlobalStyles.colors.primary500,
+  },
+  categoryContent: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
   categoryTitle: {
     marginVertical: 24,
     fontSize: 12,
     color: GlobalStyles.colors.primary100,
     marginBottom: 4,
   },
-
   categoryText: {
     fontSize: 13,
     color: GlobalStyles.colors.primary200,
     marginTop: 4,
   },
-
   selectedCategoryText: {
     color: GlobalStyles.colors.accent500,
   },

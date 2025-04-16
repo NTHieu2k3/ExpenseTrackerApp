@@ -3,7 +3,6 @@ import { useState } from "react";
 import { GlobalStyles } from "../../constants/styles";
 import { useNavigation } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
-import { Button } from "react-native-paper";
 
 import AuthForm from "./AuthForm";
 import ForgotPasswordForm from "../../screens/Auth/ForgotPassForm";
@@ -21,6 +20,7 @@ function AuthContent({ isLogin, onAuthenticate }) {
 
   const navigation = useNavigation();
 
+  //Chuyển giữa SignUp/Login
   function switchAuthModeHandler() {
     if (isForgotPassword) {
       setIsForgotPassword(false);

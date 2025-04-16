@@ -276,7 +276,12 @@ const styles = StyleSheet.create({
     margin: 3,
   },
   selectedCategoryBox: {
-    backgroundColor: GlobalStyles.colors.primary500,
+    backgroundColor: "#222d3c",
+    borderColor: GlobalStyles.colors.accent500,
+    shadowColor: GlobalStyles.colors.accent500,
+    shadowOpacity: 0.4,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
   },
   categoryContent: {
     alignItems: "center",

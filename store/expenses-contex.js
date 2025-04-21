@@ -80,95 +80,83 @@ function ExpensesContexProvider({ children }) {
     }
   }
 
-  
   function getSelectedWeek(expenseDate) {
     return expenseDate;
   }
 
-  //Kiểm tra và thông báo cho người dùng khi Add/Update có bị vượt qua ngân sách chi tiêu còn lại hay không 
+  //Kiểm tra và thông báo cho người dùng khi Add/Update có bị vượt qua ngân sách chi tiêu còn lại hay không
   async function validateAndAddExpense(expenseData, isUpdate = false) {
     const { id, date, amount, category } = expenseData;
-    if (!id || !date || !amount || !category) {
-      return;
-    }
+    if (!id || !date || !amount || !category) return;
+
     const expenseDate = new Date(date);
-    const selectedYear = expenseDate.getFullYear();
-    const selectedMonth = expenseDate.getMonth() + 1;
-    const selectedWeek = getSelectedWeek(expenseDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // reset giờ
 
-    const filterType = "month";
+    const proceed = async () => {
+      const selectedYear = expenseDate.getFullYear();
+      const selectedMonth = expenseDate.getMonth() + 1;
+      const selectedWeek = getSelectedWeek(expenseDate);
+      const filterType = "month";
 
-    const salaryData = await fetchSalaryData(selectedYear, selectedMonth);
-    let updatedExpenses = [...expensesState];
+      const salaryData = await fetchSalaryData(selectedYear, selectedMonth);
 
-    if (isUpdate) {
-      updatedExpenses = updatedExpenses.filter((e) => e.id !== id);
-    }
+      let updatedExpenses = [...expensesState];
+      if (isUpdate) {
+        updatedExpenses = updatedExpenses.filter((e) => e.id !== id);
+      }
 
-    const filteredExpensesBefore = filterExpenses(
-      updatedExpenses,
-      filterType,
-      selectedYear,
-      selectedMonth,
-      selectedWeek
-    );
+      const filteredExpenses = filterExpenses(
+        updatedExpenses,
+        filterType,
+        selectedYear,
+        selectedMonth,
+        selectedWeek
+      );
 
-    const { totalRemaining: totalRemainingBefore } = calculateBudget(
-      salaryData,
-      filteredExpensesBefore,
-      filterType
-    );
+      const { totalRemaining } = calculateBudget(
+        salaryData,
+        filteredExpenses,
+        filterType
+      );
 
-    if (
-      parseFloat(amount.toFixed(2)) >
-      parseFloat(totalRemainingBefore.toFixed(2))
-    ) {
-      Alert.alert(
-        "Warning",
-        "The amount spent exceeds the remaining amount ! Do you want to continue ?",
-        [
-          {
-            text: "No",
-            style: "cancel",
-          },
-          {
-            text: "Yes",
-            onPress: () => {
-              if (isUpdate) {
-                const existingExpense = expensesState.find((e) => e.id === id);
-                if (!existingExpense) {
-                  console.log("Không tìm thấy expense cần cập nhật!");
-                  return;
-                }
+      if (amount > totalRemaining) {
+        Alert.alert(
+          "Vượt ngân sách",
+          "Khoản chi vượt quá ngân sách còn lại. Bạn có muốn tiếp tục?",
+          [
+            { text: "Không", style: "cancel" },
+            {
+              text: "Có",
+              onPress: () => {
                 dispatch({
-                  type: "UPDATE",
-                  payload: { id, data: expenseData },
+                  type: isUpdate ? "UPDATE" : "ADD",
+                  payload: isUpdate ? { id, data: expenseData } : expenseData,
                 });
-              } else {
-                dispatch({ type: "ADD", payload: expenseData });
-              }
+              },
             },
-          },
+          ]
+        );
+      } else {
+        dispatch({
+          type: isUpdate ? "UPDATE" : "ADD",
+          payload: isUpdate ? { id, data: expenseData } : expenseData,
+        });
+      }
+    };
+
+    if (expenseDate > today) {
+      Alert.alert(
+        "Future Date",
+        "The selected date is in the future. Do you still want to add this expense?",
+        [
+          { text: "Cancel", style: "cancel" },
+          { text: "Add Anyway", onPress: proceed },
         ]
       );
     } else {
-      if (isUpdate) {
-        const existingExpense = expensesState.find((e) => e.id === id);
-        if (!existingExpense) {
-          console.log("Không tìm thấy expense cần cập nhật!");
-          return;
-        }
-        dispatch({
-          type: "UPDATE",
-          payload: { id, data: expenseData },
-        });
-      } else {
-        dispatch({ type: "ADD", payload: expenseData });
-      }
+      await proceed();
     }
-    console.log("DEBUG - Lương: ", salaryData);
-    console.log("DEBUG - Chi tiêu: ", amount);
-    console.log("DEBUG - totalRemaining: ", totalRemaining);
   }
 
   function addExpense(expenseData) {

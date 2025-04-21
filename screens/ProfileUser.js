@@ -4,23 +4,21 @@ import {
   View,
   Pressable,
   Alert,
-  Linking,
+  ScrollView,
+  SafeAreaView,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { GlobalStyles } from "../constants/styles";
 import { useContext, useState } from "react";
 import { AuthContex } from "../store/auth-contex";
 import { useNavigation } from "@react-navigation/native";
-
 import LoadingOverlay from "../components/UI/LoadingOverlay";
-import * as MailComposer from "expo-mail-composer";
 
 function ProfileUser() {
   const authCtx = useContext(AuthContex);
   const [isLoading, setIsLoading] = useState(false);
   const navigation = useNavigation();
 
-  //Xử lý button Logout
   function logoutHandler() {
     setIsLoading(true);
     setTimeout(() => {
@@ -29,7 +27,6 @@ function ProfileUser() {
     }, 1500);
   }
 
-  //Xử lý các function chưa làm
   function waitingDev() {
     Alert.alert(
       "Feature in Development",
@@ -38,198 +35,102 @@ function ProfileUser() {
     );
   }
 
-  if (isLoading) {
-    return <LoadingOverlay />;
-  }
+  if (isLoading) return <LoadingOverlay />;
 
-  const sendReport = async () => {
-    const email = authCtx.email;
-    if (!email) {
-      Alert.alert("Email not found", "User email is missing from context.");
-      return;
-    }
-    console.log("Preparing to send email to:", email);
-
-    const isAvailable = await MailComposer.isAvailableAsync();
-    if (!isAvailable) {
-      Alert.alert(
-        "Mail app not available",
-        "Please install a mail app (e.g., Gmail, Outlook) to send reports."
-      );
-      return;
-    }
-
-    try {
-      await MailComposer.composeAsync({
-        recipients: [email],
-        subject: "Your Expense Report",
-        body: "This is your generated expense report. Thank you for using our app!",
-      });
-
-      Alert.alert(
-        "Email ready!",
-        "The email draft was opened in your mail app."
-      );
-    } catch (error) {
-      console.log("Error composing email:", error);
-      Alert.alert("Error", "Something went wrong while preparing the email.");
-    }
-  };
+  const items = [
+    {
+      label: "Account Information",
+      icon: "person-outline",
+      action: waitingDev,
+    },
+    {
+      label: "Settings",
+      icon: "settings-outline",
+      action: waitingDev,
+    },
+    {
+      label: "Search Expense",
+      icon: "search-outline",
+      action: () => navigation.navigate("SearchExpense"),
+    },
+    {
+      label: "Update Salary",
+      icon: "cash-outline",
+      action: () => navigation.navigate("UpdateSalary"),
+    },
+    {
+      label: "Change Password",
+      icon: "lock-closed-outline",
+      action: () => navigation.navigate("ChangePassword"),
+    },
+    {
+      label: "Verify Phone Number",
+      icon: "call-outline",
+      action: () => navigation.navigate("VerifyPhoneNumber"),
+    },
+    {
+      label: "Expense Report",
+      icon: "document-text-outline",
+      action: () => navigation.navigate("ExpensesReport"),
+    },
+  ];
 
   return (
-    <View style={styles.container}>
-      <Pressable
-        style={({ pressed }) => [styles.item, pressed && styles.pressed]}
-        onPress={waitingDev}
-      >
-        <View style={styles.row}>
-          <Ionicons
-            name="person-outline"
-            size={24}
-            color={GlobalStyles.colors.accent500}
-          />
-          <Text style={styles.text}>Account Information</Text>
-          <Ionicons
-            name="chevron-forward-outline"
-            size={24}
-            color={GlobalStyles.colors.accent500}
-          />
-        </View>
-      </Pressable>
+    <SafeAreaView
+      style={{ flex: 1, backgroundColor: GlobalStyles.colors.primary700 }}
+    >
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <View style={styles.container}>
+          <View style={styles.header}>
+            <Ionicons
+              name="person-circle-outline"
+              size={80}
+              color={GlobalStyles.colors.accent500}
+            />
+            <Text style={styles.greeting}>
+              Hello, {authCtx.email || "User"}
+            </Text>
+          </View>
 
-      <Pressable
-        style={({ pressed }) => [styles.item, pressed && styles.pressed]}
-        onPress={waitingDev}
-      >
-        <View style={styles.row}>
-          <Ionicons
-            name="settings-outline"
-            size={24}
-            color={GlobalStyles.colors.accent500}
-          />
-          <Text style={styles.text}>Settings</Text>
-          <Ionicons
-            name="chevron-forward-outline"
-            size={24}
-            color={GlobalStyles.colors.accent500}
-          />
-        </View>
-      </Pressable>
+          {items.map((item, index) => (
+            <Pressable
+              key={index + Math.random().toString()}
+              style={({ pressed }) => [styles.item, pressed && styles.pressed]}
+              onPress={item.action}
+            >
+              <View style={styles.row}>
+                <Ionicons name={item.icon} size={24} color="white" />
+                <Text style={styles.text}>{item.label}</Text>
+                <Ionicons
+                  name="chevron-forward-outline"
+                  size={24}
+                  color={GlobalStyles.colors.accent500}
+                />
+              </View>
+            </Pressable>
+          ))}
 
-      <Pressable
-        style={({ pressed }) => [styles.item, pressed && styles.pressed]}
-        onPress={() => navigation.navigate("SearchExpense")}
-      >
-        <View style={styles.row}>
-          <Ionicons
-            name="search-outline"
-            size={24}
-            color={GlobalStyles.colors.accent500}
-          />
-          <Text style={styles.text}>Search Expense</Text>
-          <Ionicons
-            name="chevron-forward-outline"
-            size={24}
-            color={GlobalStyles.colors.accent500}
-          />
+          <Pressable
+            style={({ pressed }) => [
+              styles.item,
+              styles.logoutItem,
+              pressed && styles.pressed,
+            ]}
+            onPress={logoutHandler}
+          >
+            <View style={styles.row}>
+              <Ionicons name="log-out-outline" size={24} color="white" />
+              <Text style={styles.text}>Log Out</Text>
+              <Ionicons
+                name="chevron-forward-outline"
+                size={24}
+                color={GlobalStyles.colors.accent500}
+              />
+            </View>
+          </Pressable>
         </View>
-      </Pressable>
-
-      <Pressable
-        style={({ pressed }) => [styles.item, pressed && styles.pressed]}
-        onPress={() => navigation.navigate("UpdateSalary")}
-      >
-        <View style={styles.row}>
-          <Ionicons
-            name="cash-outline"
-            size={24}
-            color={GlobalStyles.colors.accent500}
-          />
-          <Text style={styles.text}>Update Salary</Text>
-          <Ionicons
-            name="chevron-forward-outline"
-            size={24}
-            color={GlobalStyles.colors.accent500}
-          />
-        </View>
-      </Pressable>
-
-      <Pressable
-        style={({ pressed }) => [styles.item, pressed && styles.pressed]}
-        onPress={() => navigation.navigate("ChangePassword")}
-      >
-        <View style={styles.row}>
-          <Ionicons
-            name="lock-closed-outline"
-            size={24}
-            color={GlobalStyles.colors.accent500}
-          />
-          <Text style={styles.text}>Change Password</Text>
-          <Ionicons
-            name="chevron-forward-outline"
-            size={24}
-            color={GlobalStyles.colors.accent500}
-          />
-        </View>
-      </Pressable>
-
-      <Pressable
-        style={({ pressed }) => [styles.item, pressed && styles.pressed]}
-        onPress={() => navigation.navigate("VerifyPhoneNumber")}
-      >
-        <View style={styles.row}>
-          <Ionicons
-            name="call-outline"
-            size={24}
-            color={GlobalStyles.colors.accent500}
-          />
-          <Text style={styles.text}>Verify Phone Number</Text>
-          <Ionicons
-            name="chevron-forward-outline"
-            size={24}
-            color={GlobalStyles.colors.accent500}
-          />
-        </View>
-      </Pressable>
-
-      <Pressable
-        style={({ pressed }) => [styles.item, pressed && styles.pressed]}
-        onPress={() => navigation.navigate("ExpensesReport")}
-      >
-        <View style={styles.row}>
-          <Ionicons
-            name="document-text-outline"
-            size={24}
-            color={GlobalStyles.colors.accent500}
-          />
-          <Text style={styles.text}>Expense report</Text>
-          <Ionicons
-            name="chevron-forward-outline"
-            size={24}
-            color={GlobalStyles.colors.accent500}
-          />
-        </View>
-      </Pressable>
-
-      <Pressable
-        style={({ pressed }) => [styles.item, pressed && styles.pressed]}
-        onPress={logoutHandler}
-      >
-        <View style={styles.row}>
-          <Ionicons
-            name="log-out-outline"
-            size={24}
-            color={GlobalStyles.colors.accent500}
-          />
-          <Text style={styles.text}>Log Out</Text>
-          <Ionicons
-            name="chevron-forward-outline"
-            size={24}
-            color={GlobalStyles.colors.accent500}
-          />
-        </View>
-      </Pressable>
-    </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
@@ -238,23 +139,38 @@ export default ProfileUser;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: GlobalStyles.colors.primary700,
+    minHeight: "100%",
     padding: 24,
+    paddingBottom: 40,
+    backgroundColor: GlobalStyles.colors.primary700,
+  },
+  header: {
+    alignItems: "center",
+    marginBottom: 28,
+  },
+  greeting: {
+    marginTop: 8,
+    fontSize: 18,
+    color: GlobalStyles.colors.primary50,
+    fontWeight: "600",
   },
   item: {
     paddingVertical: 16,
-    paddingHorizontal: 24,
-    backgroundColor: GlobalStyles.colors.primary700,
-    borderRadius: 6,
+    paddingHorizontal: 20,
+    backgroundColor: GlobalStyles.colors.primary600,
+    borderRadius: 12,
+    marginBottom: 16,
+    shadowColor: "#000",
+    shadowOpacity: 0.15,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 5,
     elevation: 3,
-    shadowColor: GlobalStyles.colors.gray500,
-    shadowRadius: 4,
-    shadowOffset: { width: 1, height: 1 },
-    shadowOpacity: 0.4,
-    marginBottom: 12,
+  },
+  logoutItem: {
+    backgroundColor: GlobalStyles.colors.error500,
   },
   pressed: {
-    opacity: 0.7,
+    opacity: 0.85,
     transform: [{ scale: 0.98 }],
   },
   row: {
@@ -263,10 +179,10 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   text: {
-    color: "white",
-    fontSize: 18,
     flex: 1,
-    marginLeft: 12,
-    fontWeight: "bold",
+    fontSize: 17,
+    fontWeight: "500",
+    color: "white",
+    marginLeft: 16,
   },
 });

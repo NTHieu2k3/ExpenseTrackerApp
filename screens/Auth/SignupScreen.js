@@ -11,20 +11,23 @@ function SignupScreen() {
 
   const navigation = useNavigation();
 
-   //Xử lý button đăng kys từ AuthContent
+  //Xử lý button đăng kys từ AuthContent
   async function signupHandler({ email, password }) {
     setIsAuthenticating(true);
     try {
       await createAccount(email, password);
-      Alert.alert("Success", "Your account has been created successfully. Please verify your email address to continue !", [
-        { text: "OK", onPress: () => navigation.navigate("Login") },
-      ]);
+      Alert.alert(
+        "Success",
+        "Your account has been created successfully. Please verify your email address to continue !",
+        [{ text: "OK", onPress: () => navigation.navigate("Login") }]
+      );
       return;
     } catch (error) {
       Alert.alert(
         "ACCOUNT CREATION FAILED!",
         "Could not create account. Please check your input and try again later !"
       );
+      console.log(error);
     } finally {
       setIsAuthenticating(false);
     }

@@ -75,6 +75,7 @@ function WelcomeScreen({ navigation }) {
         "ERROR",
         "Can not save your salary and savings goal. Please try again later!"
       );
+      console.log(error);
     }
   }
 
@@ -101,8 +102,8 @@ function WelcomeScreen({ navigation }) {
         <TextInput
           style={styles.input}
           placeholder="Your salary"
-          keyboardType="decimal-pad"
-          value={salary}
+          keyboardType="number-pad"
+          value={salary.replace(",", ".")}
           onChangeText={setSalary}
         />
       </View>

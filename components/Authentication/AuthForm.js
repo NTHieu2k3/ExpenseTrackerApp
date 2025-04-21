@@ -1,6 +1,8 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useState } from "react";
 import { GlobalStyles } from "../../constants/styles";
+import { Ionicons } from "@expo/vector-icons";
+
 import AuthInput from "./AuthInput";
 import * as Animatable from "react-native-animatable";
 
@@ -78,10 +80,18 @@ function AuthForm({ isLogin, onSubmit, credentialsInvalid }) {
         />
       )}
       <Pressable
-        style={({ pressed }) => [styles.button, pressed && styles.pressed]}
+        style={({ pressed }) => [styles.button, pressed && { opacity: 0.85 }]}
         onPress={submitHandler}
       >
-        <Text style={styles.buttonText}>{isLogin ? "Log In" : "Sign Up"}</Text>
+        <View style={styles.buttonContent}>
+          <Ionicons
+            name={isLogin ? "log-in-outline" : "person-add-outline"}
+            size={20}
+            color="white"
+            style={{ marginRight: 8 }}
+          />
+          <Text style={styles.buttonText}>{isLogin ? "Login" : "Sign Up"}</Text>
+        </View>
       </Pressable>
     </Animatable.View>
   );
@@ -94,6 +104,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
     paddingHorizontal: 6,
   },
+
   button: {
     marginTop: 22,
     borderRadius: 10,
@@ -105,13 +116,21 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     elevation: 5,
   },
+
   pressed: {
     opacity: 0.8,
   },
+
   buttonText: {
     color: GlobalStyles.colors.primary50,
     fontSize: 18,
     fontWeight: "bold",
     textAlign: "center",
+  },
+
+  buttonContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
   },
 });

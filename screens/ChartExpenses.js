@@ -1,11 +1,4 @@
-import {
-  Alert,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { AuthContex } from "../store/auth-contex";
 import { fetchExpenses } from "../util/http";
@@ -101,6 +94,7 @@ function ChartExpenses({ refresh }) {
         setError(null);
       } catch (error) {
         setError("Can not load data. Please try again later !");
+        console.log(error);
       }
     }
     getExpenses();
@@ -167,7 +161,7 @@ function ChartExpenses({ refresh }) {
     >
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <View style={styles.container}>
-          <Text style={styles.title}>Expense Statistics</Text>
+          <Text style={styles.title}>📊Expense Statistics</Text>
           {error && <Text style={styles.error}>{error}</Text>}
           <Text style={styles.subtitle}>{displayTitle}</Text>
 
@@ -213,8 +207,7 @@ function ChartExpenses({ refresh }) {
             yAxisThickness={2}
             xAxisThickness={2}
             isAnimated
-            hideRules
-            spacing={12}
+            spacing={16}
             maxValue={
               chartData.length > 0
                 ? Math.max(...chartData.map((item) => item.value)) * 1.2
@@ -223,6 +216,7 @@ function ChartExpenses({ refresh }) {
             yAxisTextStyle={{ color: "white" }}
             xAxisLabelTextStyle={{ color: "white", fontSize: 14 }}
             barStyle={{ backgroundColor: "white" }}
+            rulesColor={GlobalStyles.colors.primary500}
           />
 
           <View style={styles.piechart}>
@@ -233,13 +227,15 @@ function ChartExpenses({ refresh }) {
             <PieChart
               data={pieChartData}
               donut
-              showValuesAsLabels
-              radius={100}
-              showText
-              textSize={14}
-              textColor="white"
               innerRadius={false}
+              x
               showTooltip={true}
+              showValuesAsLabels
+              textSize={14}
+              showText
+              textColor="white"
+              strokeWidth={1}
+              strokeColor={GlobalStyles.colors.primary700}
             />
             <View style={{ marginTop: 10 }}>
               <Text style={styles.percentageText}>
@@ -253,7 +249,7 @@ function ChartExpenses({ refresh }) {
               </Text>
             </View>
           </View>
-          <Text style={styles.subtitle}>Detail</Text>
+          <Text style={styles.subtitle}>💼 Details</Text>
           <View style={styles.item}>
             <ExpensesOutput
               expenses={filteredExpenses}
@@ -272,33 +268,41 @@ export default ChartExpenses;
 const styles = StyleSheet.create({
   container: {
     backgroundColor: GlobalStyles.colors.primary700,
-    padding: 32,
+    padding: 25,
     alignItems: "center",
     flex: 1,
   },
 
   piechart: {
+    backgroundColor: GlobalStyles.colors.primary600,
+    borderRadius: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 20,
     marginBottom: 20,
     alignItems: "center",
-    borderBottomWidth: 1,
-    borderTopWidth: 1,
-    borderBottomColor: "white",
-    borderTopColor: "white",
-    marginVertical: 10,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 4,
+    marginTop: 20,
   },
 
   title: {
-    fontSize: 24,
-    color: "white",
+    fontSize: 28,
     fontWeight: "bold",
+    color: GlobalStyles.colors.primary50,
     marginBottom: 8,
+    textAlign: "center",
   },
 
   subtitle: {
     fontSize: 18,
-    color: "white",
-    marginBottom: 20,
-    marginTop: 20,
+    fontWeight: "500",
+    color: GlobalStyles.colors.primary100,
+    textAlign: "center",
+    marginBottom: 16,
+    marginTop: 12,
   },
 
   filterContainer: {

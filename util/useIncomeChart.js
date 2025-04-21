@@ -102,10 +102,21 @@ export function useIncomeChart(
 
         const monthlySalaries = await Promise.all(salaryPromises);
 
-        const monthlyData = monthlySalaries.map((salaryData, index) => ({
-          month: index + 1,
-          salaryData,
-        }));
+        let lastKnownSalary = { salary: 0, savingsGoal: 0 };
+
+        const monthlyData = monthlySalaries.map((salaryData, index) => {
+          // Fallback nếu không có dữ liệu
+          if (!salaryData.salary && !salaryData.savingsGoal) {
+            salaryData = lastKnownSalary;
+          } else {
+            lastKnownSalary = salaryData;
+          }
+
+          return {
+            month: index + 1,
+            salaryData,
+          };
+        });
 
         setYearSalaryCache((prev) => ({
           ...prev,

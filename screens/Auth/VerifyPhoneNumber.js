@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import {
   View,
   Text,
@@ -14,14 +14,27 @@ import {
 import { AuthContex } from "../../store/auth-contex";
 import Button from "../../components/UI/Button";
 import { GlobalStyles } from "../../constants/styles";
-import { storePhoneNumber } from "../../util/http";
+import { storePhoneNumber, fetchPhoneNumber } from "../../util/http";
 
 function VerifyPhoneNumber({ navigation }) {
   const authCtx = useContext(AuthContex);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  // Xử lý button Save để lưu SĐT vào db
+  // ✅ Tự động lấy số điện thoại khi mở màn hình
+  useEffect(() => {
+    async function loadPhoneNumber() {
+      try {
+        const fetchedPhone = await fetchPhoneNumber(authCtx.token, authCtx.uid);
+        if (fetchedPhone) setPhoneNumber(fetchedPhone);
+      } catch (error) {
+        console.error("Failed to fetch phone number:", error);
+      }
+    }
+
+    loadPhoneNumber();
+  }, []);
+
   async function handleVerify() {
     if (!phoneNumber.trim()) {
       Alert.alert("Error", "Please enter a phone number.");
@@ -35,6 +48,7 @@ function VerifyPhoneNumber({ navigation }) {
       navigation.goBack();
     } catch (error) {
       Alert.alert("Error", "Failed to save phone number.");
+      console.log(error);
     }
     setIsLoading(false);
   }
@@ -47,10 +61,10 @@ function VerifyPhoneNumber({ navigation }) {
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           <View style={styles.titleContainer}>
-            <Text style={styles.title}>Verify Phone Number</Text>
+            <Text style={styles.title}>📱 Verify Phone Number</Text>
           </View>
 
-          <Text style={styles.label}>Enter your phone number:</Text>
+          <Text style={styles.label}>Phone number</Text>
           <TextInput
             style={styles.input}
             value={phoneNumber}
@@ -79,8 +93,6 @@ export default VerifyPhoneNumber;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 24,
-    justifyContent: "center",
     backgroundColor: GlobalStyles.colors.primary700,
   },
   scrollContainer: {
@@ -89,38 +101,43 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   titleContainer: {
-    marginBottom: 40,
+    marginBottom: 32,
     alignItems: "center",
   },
   title: {
     fontSize: 26,
     fontWeight: "bold",
-    color: "white",
+    color: GlobalStyles.colors.primary50,
     textAlign: "center",
   },
   label: {
     fontSize: 16,
-    fontWeight: "bold",
-    color: "white",
-    marginBottom: 8,
+    fontWeight: "600",
+    color: GlobalStyles.colors.primary100,
+    marginBottom: 6,
+    marginLeft: 6,
   },
   input: {
-    backgroundColor: "white",
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    marginBottom: 16,
-    width: "100%",
+    backgroundColor: GlobalStyles.colors.primary100,
+    borderRadius: 10,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    marginBottom: 20,
     fontSize: 16,
+    color: GlobalStyles.colors.primary800,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 1 },
+    elevation: 3,
     textAlign: "center",
   },
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "center",
-    marginTop: 12,
+    marginTop: 16,
   },
   button: {
     flex: 1,
-    marginHorizontal: 5,
+    marginHorizontal: 6,
   },
 });

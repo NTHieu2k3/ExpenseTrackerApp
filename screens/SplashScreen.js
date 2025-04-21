@@ -79,7 +79,7 @@ export default function SplashScreen() {
 
       <View style={styles.dots}>
         {pages.map((_, i) => (
-          <View key={i} style={[styles.dot, i === index && styles.activeDot]} />
+          <View key={i + Math.random().toString()} style={[styles.dot, i === index && styles.activeDot]} />
         ))}
       </View>
 

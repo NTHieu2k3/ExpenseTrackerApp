@@ -5,109 +5,121 @@ import {
   TextInput,
   Pressable,
   StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-  TouchableWithoutFeedback,
-  Keyboard,
-  FlatList,
+  SafeAreaView,
 } from "react-native";
 import { support } from "../util/http";
 import { GlobalStyles } from "../constants/styles";
-import LoadingOverlay from "../components/UI/LoadingOverlay";
+import { Ionicons } from "@expo/vector-icons";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
 function SupportScreen() {
   const [inputText, setInputText] = useState("");
   const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(false);
   const listRef = useRef(null);
 
-  //Xử lý button Send
   async function handleSendMessage() {
     if (!inputText.trim()) return;
 
     const question = inputText;
     setInputText("");
+    setLoading(true);
 
-    setMessages((prevMessages) => [
-      ...prevMessages,
-      { text: question, isUser: true },
+    setMessages((prev) => [
+      ...prev,
+      {
+        text: question,
+        isUser: true,
+        timestamp: new Date().toLocaleTimeString(),
+      },
     ]);
 
-    setMessages((prevMessages) => [
-      ...prevMessages,
-      { text: "", isUser: false },
-    ]);
+    try {
+      const response = await support(question);
+      setMessages((prev) => [
+        ...prev,
+        {
+          text: response,
+          isUser: false,
+          timestamp: new Date().toLocaleTimeString(),
+        },
+      ]);
+    } catch (error) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          text: "Sorry, something went wrong. Please try again later.", error,
+          isUser: false,
+          timestamp: new Date().toLocaleTimeString(),
+        },
+      ]);
+    }
 
-    const response = await support(question);
-
-    setMessages((prevMessages) => {
-      const updatedMessages = [...prevMessages];
-      updatedMessages[updatedMessages.length - 1].text = response;
-      return updatedMessages;
-    });
-
+    setLoading(false);
     listRef.current?.scrollToEnd({ animated: true });
   }
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 80 : 100}
-    >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={styles.inner}>
-          <View style={{ flex: 1 }}>
-            <FlatList
-              ref={listRef}
-              data={messages}
-              keyExtractor={(item, index) => index.toString()}
-              renderItem={({ item }) =>
-                item.text ? (
-                  <View
-                    style={[
-                      styles.messageBubble,
-                      item.isUser ? styles.userMessage : styles.botMessage,
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.messageText,
-                        item.isUser ? styles.userText : styles.botText,
-                      ]}
-                    >
-                      {item.text}
-                    </Text>
-                  </View>
-                ) : (
-                  !item.isUser && <LoadingOverlay />
-                )
-              }
-              contentContainerStyle={{
-                flexGrow: 1,
-                justifyContent: "flex-end",
-                paddingVertical: 10,
-              }}
-              onContentSizeChange={() =>
-                listRef.current?.scrollToEnd({ animated: true })
-              }
-            />
-          </View>
-
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={styles.input}
-              placeholder="Ask anything..."
-              value={inputText}
-              onChangeText={setInputText}
-              multiline
-            />
-            <Pressable style={styles.button} onPress={handleSendMessage}>
-              <Text style={styles.buttonText}>Send</Text>
-            </Pressable>
-          </View>
+    <SafeAreaView style={styles.container}>
+      <KeyboardAwareScrollView
+        enableOnAndroid={true}
+        extraScrollHeight={20}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.messagesWrapper}>
+          {messages.map((item, index) => (
+            <View
+              key={index + Math.random().toString()}
+              style={[
+                styles.messageRow,
+                item.isUser ? styles.userRow : styles.botRow,
+              ]}
+            >
+              {!item.isUser && (
+                <Ionicons
+                  name="chatbubble-ellipses-outline"
+                  size={24}
+                  color="white"
+                  style={styles.avatar}
+                />
+              )}
+              <View
+                style={[
+                  styles.messageBubble,
+                  item.isUser ? styles.userMessage : styles.botMessage,
+                ]}
+              >
+                <Text style={styles.messageText}>{item.text}</Text>
+                <Text style={styles.timestamp}>{item.timestamp}</Text>
+              </View>
+              {item.isUser && (
+                <Ionicons
+                  name="person-circle-outline"
+                  size={24}
+                  color="white"
+                  style={styles.avatar}
+                />
+              )}
+            </View>
+          ))}
         </View>
-      </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+
+        {loading && <Text style={styles.loadingText}>Thinking...</Text>}
+      </KeyboardAwareScrollView>
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.input}
+          placeholder="Ask me anything..."
+          value={inputText}
+          onChangeText={setInputText}
+          multiline
+          placeholderTextColor="#aaa"
+        />
+        <Pressable style={styles.sendButton} onPress={handleSendMessage}>
+          <Ionicons name="send" size={20} color="white" />
+        </Pressable>
+      </View>
+    </SafeAreaView>
   );
 }
 
@@ -120,58 +132,73 @@ const styles = StyleSheet.create({
   },
   inner: {
     flex: 1,
-    padding: 10,
+    padding: 12,
+  },
+  messageRow: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+    marginVertical: 4,
+    paddingHorizontal: 6,
+  },
+  userRow: {
+    justifyContent: "flex-end",
+  },
+  botRow: {
+    justifyContent: "flex-start",
+  },
+  avatar: {
+    marginHorizontal: 6,
   },
   messageBubble: {
     maxWidth: "75%",
-    padding: 10,
-    borderRadius: 15,
-    marginBottom: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 20,
+    shadowOpacity: 0.1,
   },
   userMessage: {
-    alignSelf: "flex-end",
-    backgroundColor: GlobalStyles.colors.primary400,
+    backgroundColor: GlobalStyles.colors.primary500,
+    borderBottomRightRadius: 0,
   },
   botMessage: {
-    alignSelf: "flex-start",
     backgroundColor: "#444",
+    borderBottomLeftRadius: 0,
   },
   messageText: {
-    fontSize: 16,
-  },
-  userText: {
     color: "white",
+    fontSize: 15,
   },
-  botText: {
-    color: "white",
+  timestamp: {
+    color: "#ccc",
+    fontSize: 11,
+    marginTop: 4,
+    textAlign: "right",
   },
   inputContainer: {
     flexDirection: "row",
     borderTopWidth: 1,
     borderColor: GlobalStyles.colors.primary400,
     padding: 10,
-    paddingBottom: 30,
     alignItems: "center",
   },
   input: {
     flex: 1,
-    backgroundColor: "white",
-    padding: 10,
+    backgroundColor: "#fff",
+    paddingHorizontal: 16,
+    paddingVertical: 10,
     borderRadius: 20,
     fontSize: 16,
-    minHeight: 50,
-    textAlignVertical: "center",
   },
-  button: {
-    backgroundColor: GlobalStyles.colors.primary400,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
+  sendButton: {
+    backgroundColor: GlobalStyles.colors.accent500,
     borderRadius: 20,
+    padding: 10,
     marginLeft: 10,
   },
-  buttonText: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "bold",
+  loadingText: {
+    textAlign: "center",
+    color: "#ccc",
+    marginVertical: 6,
+    fontStyle: "italic",
   },
 });

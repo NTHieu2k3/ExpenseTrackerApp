@@ -26,7 +26,6 @@ function UpdateSalary({ navigation }) {
   const [savingsGoal, setSavingsGoal] = useState("");
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [salaryData, setSalaryData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
   //Chạy mỗi khi selectedDate thay đổi để get lương từ db
@@ -42,12 +41,11 @@ function UpdateSalary({ navigation }) {
           year,
           month
         );
-
-        setSalaryData(data);
         setSalary(data.salary.toString());
         setSavingsGoal(data.savingsGoal.toString());
       } catch (error) {
         Alert.alert("Error", "Failed to load salary data.");
+        console.log(error);
       }
       setIsLoading(false);
     }
@@ -90,6 +88,7 @@ function UpdateSalary({ navigation }) {
       navigation.goBack();
     } catch (error) {
       Alert.alert("Error", "Failed to update salary.");
+      console.log(error);
     }
     setIsLoading(false);
   }
@@ -100,6 +99,11 @@ function UpdateSalary({ navigation }) {
       style={styles.container}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        {isLoading && (
+          <View style={styles.loadingOverlay}>
+            <Text style={styles.loadingText}>Please wait...</Text>
+          </View>
+        )}
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           <View style={styles.titleContainer}>
             <FontAwesome5
@@ -142,7 +146,7 @@ function UpdateSalary({ navigation }) {
             <TextInput
               style={styles.input}
               keyboardType="decimal-pad"
-              value={salary}
+              value={salary.replace(",", ".")}
               onChangeText={setSalary}
               placeholder="Enter amount..."
               placeholderTextColor={GlobalStyles.colors.gray500}
@@ -155,7 +159,7 @@ function UpdateSalary({ navigation }) {
             <TextInput
               style={styles.input}
               keyboardType="decimal-pad"
-              value={savingsGoal}
+              value={savingsGoal.replace(",", ".")}
               onChangeText={setSavingsGoal}
               placeholder="Enter amount..."
               placeholderTextColor={GlobalStyles.colors.gray500}

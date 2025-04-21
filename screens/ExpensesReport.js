@@ -35,15 +35,19 @@ function ExpenseReport({ navigation }) {
       try {
         const allExpenses = await fetchExpenses(authCtx.token, authCtx.uid);
         const filteredExpenses = allExpenses.filter((expense) => {
-          const expenseMonth = expense.date.getMonth() + 1;
-          const expenseYear = expense.date.getFullYear();
-          return expenseMonth === month && expenseYear === year;
+          const expenseDate = new Date(expense.date);
+          return (
+            expenseDate.getFullYear() === year &&
+            expenseDate.getMonth() + 1 === month
+          );
         });
 
         setExpenses(filteredExpenses);
       } catch (error) {
-        Alert.alert("Error", "Failed to load expenses.");
+        Alert.alert("Error", "Failed to load expenses - Error: ");
+        console.log(error);
       }
+
       setIsLoading(false);
     }
 
@@ -68,13 +72,18 @@ function ExpenseReport({ navigation }) {
             <FontAwesome5
               name="file-invoice-dollar"
               size={30}
-              color="white"
+              color={GlobalStyles.colors.accent500}
               style={styles.icon}
             />
-            <Text style={styles.title}>Expense Report</Text>
+            <View>
+              <Text style={styles.title}>Expense Report</Text>
+              <Text style={styles.subtitle}>
+                Export report by month to your email
+              </Text>
+            </View>
           </View>
 
-          <Text style={styles.label}>Select month / year:</Text>
+          <Text style={styles.label}>Select Month & Year:</Text>
           <View style={styles.datePickerContainer}>
             <Text style={styles.dateText}>
               {selectedDate.toLocaleDateString("en-US", {
@@ -92,12 +101,12 @@ function ExpenseReport({ navigation }) {
 
           {showDatePicker && (
             <DateTimePicker
+              color="white"
               value={selectedDate}
               mode="date"
-              display="spinner"
+              display={Platform.OS === "ios" ? "spinner" : "default"}
               onChange={dateChangedHandler}
-              textColor="white"
-              fontSize="16"
+              maximumDate={new Date()}
             />
           )}
 
@@ -109,16 +118,13 @@ function ExpenseReport({ navigation }) {
                   expenses,
                   `Expense Report for ${selectedDate.toLocaleDateString(
                     "en-US",
-                    {
-                      month: "long",
-                      year: "numeric",
-                    }
+                    { month: "long", year: "numeric" }
                   )}`
                 )
               }
               style={styles.button}
             >
-              Send
+              {isLoading ? "Sending..." : "Send Report"}
             </Button>
             <Button onPress={navigation.goBack} style={styles.button}>
               Cancel
@@ -135,8 +141,6 @@ export default ExpenseReport;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 24,
-    justifyContent: "center",
     backgroundColor: GlobalStyles.colors.primary700,
   },
   scrollContainer: {
@@ -147,47 +151,49 @@ const styles = StyleSheet.create({
   titleContainer: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 40,
+    marginBottom: 28,
   },
   icon: {
-    marginRight: 10,
+    marginRight: 12,
   },
   title: {
-    fontSize: 26,
+    fontSize: 24,
     fontWeight: "bold",
     color: "white",
-    textAlign: "center",
+  },
+  subtitle: {
+    fontSize: 14,
+    color: GlobalStyles.colors.primary200,
+    marginTop: 4,
   },
   label: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "white",
+    color: GlobalStyles.colors.primary100,
     marginBottom: 8,
+    marginLeft: 4,
   },
   datePickerContainer: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: GlobalStyles.colors.gray500,
-    borderRadius: 8,
-    marginBottom: 16,
-    backgroundColor: "#f9f9f9",
+    justifyContent: "space-between",
+    padding: 6,
+    backgroundColor: GlobalStyles.colors.primary100,
+    borderRadius: 10,
+    marginBottom: 20,
   },
   dateText: {
     fontSize: 16,
-    fontWeight: "500",
-    color: GlobalStyles.colors.primary500,
-    marginRight: 10,
+    fontWeight: "600",
+    color: GlobalStyles.colors.primary700,
   },
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "center",
-    marginTop: 20,
+    marginTop: 24,
   },
   button: {
     flex: 1,
-    marginHorizontal: 5,
+    marginHorizontal: 6,
   },
 });

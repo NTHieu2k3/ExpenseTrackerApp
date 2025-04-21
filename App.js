@@ -232,12 +232,6 @@ function Root() {
         const storedUid = await AsyncStorage.getItem("uid");
         const storedEmail = await AsyncStorage.getItem("email");
 
-        console.log("Restoring login:", {
-          storedToken,
-          storedUid,
-          storedEmail,
-        });
-
         if (storedToken && storedUid && storedEmail) {
           authCtx.authenticate(storedToken, storedUid, storedEmail, true);
         } else {

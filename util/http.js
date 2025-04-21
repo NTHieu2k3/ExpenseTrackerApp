@@ -27,32 +27,21 @@ export async function storeMonthlySalary(token, salary, savingsGoal, uid) {
 
 //Lấy thông tin lương tháng
 export async function fetchMonthlySalary(token, uid, year, month) {
-  console.log("fetchMonthlySalary - UID:", uid, "Year:", year, "Month:", month);
-
-  let targetYear = year;
-  let targetMonth = month;
-  let salaryData = null;
-
-  while (targetYear >= 2020) {
+  try {
     const response = await axios.get(
-      `${BACKEND_URL}/monthlySalary/${uid}/${targetYear}/${targetMonth}.json?auth=${token}`
+      `${BACKEND_URL}/monthlySalary/${uid}/${year}/${month}.json?auth=${token}`
     );
 
-    if (response.data) {
-      salaryData = response.data;
-      break;
-    }
-    targetMonth--;
-    if (targetMonth === 0) {
-      targetMonth = 12;
-      targetYear--;
-    }
-  }
+    const data = response.data;
 
-  return {
-    salary: salaryData?.salary || 0,
-    savingsGoal: salaryData?.savingsGoal || 0,
-  };
+    return {
+      salary: data?.salary || 0,
+      savingsGoal: data?.savingsGoal || 0,
+    };
+  } catch (error) {
+    console.error("Fetch salary error:", error);
+    return { salary: 0, savingsGoal: 0 };
+  }
 }
 
 //Cập nhật lương và mục tiêu tiết kiệm của tháng hiện tại và coppy sang tháng tiếp theo nếu chưa có
@@ -279,4 +268,16 @@ export async function storePhoneNumber(token, phoneNumber, uid) {
   await axios.patch(`${BACKEND_URL}/phoneNumbers/${uid}.json?auth=${token}`, {
     phoneNumber,
   });
+}
+
+//Lấy thông tin về SĐT
+export async function fetchPhoneNumber(token, uid) {
+  const response = await axios.get(
+    `${BACKEND_URL}/phoneNumbers/${uid}.json?auth=${token}`
+  );
+
+  if (!response.data) {
+    return "";
+  }
+  return response.data.phoneNumber || "";
 }

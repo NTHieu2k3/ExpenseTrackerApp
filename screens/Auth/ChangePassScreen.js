@@ -78,6 +78,7 @@ function ChangePasswordScreen({ navigation }) {
         "ERROR",
         "Unable to change password. Please try again later !"
       );
+      console.log(error);
     }
 
     setIsLoading(false);
@@ -160,47 +161,53 @@ const styles = StyleSheet.create({
     backgroundColor: GlobalStyles.colors.primary700,
     paddingHorizontal: 24,
   },
-  
+
   scrollContainer: {
     flexGrow: 1,
     justifyContent: "center",
-    padding: 24,
+    paddingVertical: 32,
   },
 
   headerContainer: {
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: 32,
   },
 
   title: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: "bold",
     color: GlobalStyles.colors.primary50,
-    marginTop: 8,
+    marginTop: 10,
+    textAlign: "center",
   },
 
   subtitle: {
     fontSize: 16,
-    color: GlobalStyles.colors.primary100,
+    color: GlobalStyles.colors.primary200,
     textAlign: "center",
-    marginTop: 4,
+    marginTop: 6,
   },
 
   label: {
-    color: GlobalStyles.colors.primary100,
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "600",
-    marginBottom: 8,
+    color: GlobalStyles.colors.primary100,
+    marginBottom: 6,
+    marginTop: 16,
   },
 
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: GlobalStyles.colors.primary50,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 10,
-    marginBottom: 12,
+    backgroundColor: GlobalStyles.colors.primary100,
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 6,
+    elevation: 4,
   },
 
   input: {
@@ -209,20 +216,14 @@ const styles = StyleSheet.create({
     color: GlobalStyles.colors.primary700,
   },
 
-  buttonText: {
-    color: GlobalStyles.colors.primary50,
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "center",
-    marginTop: 12,
+    marginTop: 24,
   },
-  
+
   button: {
     flex: 1,
-    marginHorizontal: 5,
+    marginHorizontal: 6,
   },
 });

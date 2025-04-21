@@ -5,6 +5,7 @@ import {
   StyleSheet,
   SafeAreaView,
   Text,
+  ScrollView,
 } from "react-native";
 import { GlobalStyles } from "../constants/styles";
 import { fetchExpenses } from "../util/http";
@@ -27,7 +28,6 @@ function SearchExpense() {
   const { token, uid } = authCtx;
   const navigation = useNavigation();
 
-  //Get tất cả expenses
   useEffect(() => {
     async function getExpenses() {
       setIsLoading(true);
@@ -42,12 +42,10 @@ function SearchExpense() {
     getExpenses();
   }, [token, uid]);
 
-  //Hiển thị DateTimePicker
   function showDatePicker() {
     setShowPicker(true);
   }
 
-  //Xử lý khi thay đổi ngày
   function onChange(event, date) {
     setShowPicker(Platform.OS === "ios");
     if (date) {
@@ -56,59 +54,66 @@ function SearchExpense() {
     setShowPicker(false);
   }
 
-  //Lọc các expense theo ngày
   const filteredExpenses = expenses.filter((expense) => {
     const expenseDate = new Date(expense.date);
     return (
-        expenseDate.getFullYear() === selectedDate.getFullYear() &&
-        expenseDate.getMonth() === selectedDate.getMonth() &&
-        expenseDate.getDate() === selectedDate.getDate() 
+      expenseDate.getFullYear() === selectedDate.getFullYear() &&
+      expenseDate.getMonth() === selectedDate.getMonth() &&
+      expenseDate.getDate() === selectedDate.getDate()
     );
   });
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.datePickerContainer}>
-        <Text style={styles.dateText}>
-          {selectedDate.toLocaleDateString("en-US", {
-            weekday: "long",
-            year: "numeric",
-            month: "2-digit",
-            day: "2-digit",
-          })}
-        </Text>
-        <IconButton
-          icon="calendar"
-          size={24}
-          color={GlobalStyles.colors.accent500}
-          onPress={showDatePicker}
-        />
-      </View>
+    <SafeAreaView style={styles.root}>
+      <ScrollView contentContainerStyle={styles.container}>
+        <Text style={styles.title}>🔍 Search Expenses by Date</Text>
 
-      {showPicker && (
-        <DateTimePicker
-          value={selectedDate}
-          mode="date"
-          display="default"
-          onChange={onChange}
-        />
-      )}
+        <View style={styles.card}>
+          <Text style={styles.label}>Selected Date</Text>
+          <View style={styles.datePickerContainer}>
+            <Text style={styles.dateText}>
+              {selectedDate.toLocaleDateString("en-US", {
+                weekday: "long",
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+              })}
+            </Text>
+            <IconButton
+              icon="calendar"
+              size={24}
+              color={GlobalStyles.colors.accent500}
+              onPress={showDatePicker}
+            />
+          </View>
+        </View>
 
-      {isLoading ? (
-        <LoadingOverlay />
-      ) : (
-        <ExpensesOutput
-          expenses={filteredExpenses}
-          expensesPeriod="Total"
-          fallbackText="No registered Expenses found !"
-        />
-      )}
+        {showPicker && (
+          <DateTimePicker
+            value={selectedDate}
+            mode="date"
+            textColor="white"
+            display={Platform.OS === "ios" ? "inline" : "default"}
+            onChange={onChange}
+          />
+        )}
 
-      <View style={styles.buttonContainer}>
-        <Button onPress={navigation.goBack} style={styles.button}>
-          Return
-        </Button>
-      </View>
+        {isLoading ? (
+          <LoadingOverlay />
+        ) : (
+          <View style={styles.results}>
+            <ExpensesOutput
+              expenses={filteredExpenses}
+              expensesPeriod="Results"
+              fallbackText="No expenses found for this day!"
+            />
+          </View>
+        )}
+
+        <View style={styles.buttonContainer}>
+          <Button onPress={navigation.goBack}>← Return</Button>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -116,31 +121,50 @@ function SearchExpense() {
 export default SearchExpense;
 
 const styles = StyleSheet.create({
-  container: {
+  root: {
     flex: 1,
-    padding: 20,
     backgroundColor: GlobalStyles.colors.primary700,
+  },
+  container: {
+    padding: 24,
+    paddingBottom: 40,
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: "bold",
+    color: GlobalStyles.colors.primary50,
+    marginBottom: 16,
+    textAlign: "center",
+  },
+  card: {
+    backgroundColor: GlobalStyles.colors.primary600,
+    padding: 16,
+    borderRadius: 12,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+    marginBottom: 24,
+  },
+  label: {
+    fontSize: 16,
+    color: GlobalStyles.colors.primary100,
+    marginBottom: 8,
   },
   datePickerContainer: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: GlobalStyles.colors.primary100,
-    padding: 12,
-    borderRadius: 10,
-    marginVertical: 30,
   },
   dateText: {
     fontSize: 16,
-    color: GlobalStyles.colors.accent100,
+    color: "white",
+    fontWeight: "500",
+  },
+  results: {
+    marginBottom: 32,
   },
   buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    marginTop: 20,
-  },
-  button: {
-    flex: 1,
-    marginHorizontal: 10,
+    alignItems: "center",
   },
 });

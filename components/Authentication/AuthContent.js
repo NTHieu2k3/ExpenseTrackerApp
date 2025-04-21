@@ -60,7 +60,16 @@ function AuthContent({ isLogin, onAuthenticate }) {
     }
     onAuthenticate({ email, password });
   }
+  
+  let switchLinkText = "";
 
+  if (isForgotPassword) {
+    switchLinkText = "Back to login";
+  } else if (isLogin) {
+    switchLinkText = "Create new account";
+  } else {
+    switchLinkText = "Sign in now";
+  }
   return (
     <LinearGradient
       colors={[GlobalStyles.colors.primary700, GlobalStyles.colors.primary900]}
@@ -116,13 +125,7 @@ function AuthContent({ isLogin, onAuthenticate }) {
             ]}
             onPress={switchAuthModeHandler}
           >
-            <Text style={styles.linkText}>
-              {isForgotPassword
-                ? "Back to login"
-                : isLogin
-                ? "Create new account"
-                : "Sign in now"}
-            </Text>
+            <Text style={styles.linkText}>{switchLinkText}</Text>
           </Pressable>
         </View>
       </View>

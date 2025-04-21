@@ -26,6 +26,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     elevation: 2,
+    marginBottom: 20,
   },
   period: {
     fontSize: 14,

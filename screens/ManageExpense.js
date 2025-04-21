@@ -8,16 +8,18 @@ import {
   StyleSheet,
   TouchableWithoutFeedback,
   View,
+  Text,
+  Pressable,
 } from "react-native";
 import { GlobalStyles } from "../constants/styles";
 import { ExpensesContex } from "../store/expenses-contex";
 import { storeExpense, updateExpense, deleteExpense } from "../util/http";
+import { Ionicons } from "@expo/vector-icons";
+import { AuthContex } from "../store/auth-contex";
 
-import IconButton from "../components/UI/IconButton";
 import ExpenseForm from "../components/ManageExpense/ExpenseForm";
 import LoadingOverlay from "../components/UI/LoadingOverlay";
 import ErrorOverlay from "../components/UI/ErrorOverlay";
-import { AuthContex } from "../store/auth-contex";
 
 function ManageExpense({ route, navigation }) {
   const expensesCtx = useContext(ExpensesContex);
@@ -50,7 +52,11 @@ function ManageExpense({ route, navigation }) {
       expensesCtx.deleteExpense(editedExpenseId);
       navigation.goBack();
     } catch (error) {
-      Alert.alert("Could not delete expense - Please try again later !");
+      Alert.alert(
+        "Error",
+        "Could not delete expense - Please try again later !"
+      );
+      console.log(error);
       setIsSubmitting(false);
     }
   }
@@ -77,6 +83,7 @@ function ManageExpense({ route, navigation }) {
       navigation.goBack();
     } catch (error) {
       setError("Could not save expense - Please try again later !");
+      console.log(error);
       setIsSubmitting(false);
     }
   }
@@ -104,12 +111,21 @@ function ManageExpense({ route, navigation }) {
           />
           {isEditing && (
             <View style={styles.deleteContainer}>
-              <IconButton
-                icon="trash"
-                color={GlobalStyles.colors.error500}
-                size={36}
+              <Pressable
+                style={({ pressed }) => [
+                  styles.deleteButton,
+                  pressed && { opacity: 0.8 },
+                ]}
                 onPress={deleteExpenseHandler}
-              />
+              >
+                <Ionicons
+                  name="trash-bin-outline"
+                  size={20}
+                  color="white"
+                  style={{ marginRight: 6 }}
+                />
+                <Text style={styles.deleteText}>Delete Expense</Text>
+              </Pressable>
             </View>
           )}
         </ScrollView>
@@ -129,9 +145,7 @@ const styles = StyleSheet.create({
   },
 
   scrollContainer: {
-    flexGrow: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    paddingBottom: 20,
   },
 
   deleteContainer: {
@@ -143,5 +157,25 @@ const styles = StyleSheet.create({
     borderTopColor: GlobalStyles.colors.primary200,
     alignItems: "center",
     marginBottom: 20,
+  },
+
+  deleteButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: GlobalStyles.colors.error500,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+
+  deleteText: {
+    color: "white",
+    fontWeight: "bold",
+    fontSize: 16,
   },
 });

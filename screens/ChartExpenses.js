@@ -132,8 +132,6 @@ function ChartExpenses({ refresh }) {
     }, [])
   );
 
-  //Hàm xử lý biểu đồ theo thời gian
-
   //Hàm xử lý chọn bộ lọc
   const [selectedFilter, setSelectedFilter] = useState("week");
 
@@ -241,11 +239,13 @@ function ChartExpenses({ refresh }) {
               <Text style={styles.percentageText}>
                 Spending: ${totalExpenses.toLocaleString()}
               </Text>
-              <Text style={styles.percentageText}>
-                Saving: ${totalSavings.toLocaleString()}
-              </Text>
+
               <Text style={styles.percentageText}>
                 Remaining: ${totalRemaining.toLocaleString()}
+              </Text>
+
+              <Text style={styles.percentageText}>
+                Saving: ${totalSavings.toLocaleString()}
               </Text>
             </View>
           </View>

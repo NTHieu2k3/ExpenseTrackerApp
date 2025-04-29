@@ -55,7 +55,7 @@ function RecentExpenses() {
 
   function toggleEndPicker() {
     setShowEndPicker((prev) => !prev);
-    setShowStartPicker(false); // đảm bảo chỉ 1 picker hiển thị
+    setShowStartPicker(false);
   }
 
   return (

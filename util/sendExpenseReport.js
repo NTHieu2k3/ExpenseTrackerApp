@@ -40,5 +40,6 @@ export async function sendExpenseReportToEmail(
     Alert.alert("Successed", "Check your email if you have sent the report !");
   } catch (error) {
     Alert.alert("Error", "Failed to send the report.");
+    console.log(error);
   }
 }

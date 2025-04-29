@@ -6,6 +6,8 @@ import {
   Pressable,
   StyleSheet,
   SafeAreaView,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { support } from "../util/http";
 import { GlobalStyles } from "../constants/styles";
@@ -48,11 +50,12 @@ function SupportScreen() {
       setMessages((prev) => [
         ...prev,
         {
-          text: "Sorry, something went wrong. Please try again later.", error,
+          text: "Sorry, something went wrong. Please try again later.",
           isUser: false,
           timestamp: new Date().toLocaleTimeString(),
         },
       ]);
+      console.log(error)
     }
 
     setLoading(false);
@@ -60,66 +63,75 @@ function SupportScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <KeyboardAwareScrollView
-        enableOnAndroid={true}
-        extraScrollHeight={20}
-        keyboardShouldPersistTaps="handled"
-      >
-        <View style={styles.messagesWrapper}>
-          {messages.map((item, index) => (
-            <View
-              key={index + Math.random().toString()}
-              style={[
-                styles.messageRow,
-                item.isUser ? styles.userRow : styles.botRow,
-              ]}
-            >
-              {!item.isUser && (
-                <Ionicons
-                  name="chatbubble-ellipses-outline"
-                  size={24}
-                  color="white"
-                  style={styles.avatar}
-                />
-              )}
-              <View
-                style={[
-                  styles.messageBubble,
-                  item.isUser ? styles.userMessage : styles.botMessage,
-                ]}
-              >
-                <Text style={styles.messageText}>{item.text}</Text>
-                <Text style={styles.timestamp}>{item.timestamp}</Text>
-              </View>
-              {item.isUser && (
-                <Ionicons
-                  name="person-circle-outline"
-                  size={24}
-                  color="white"
-                  style={styles.avatar}
-                />
-              )}
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 50 : 0} // điều chỉnh offset nếu cần
+    >
+      <SafeAreaView style={styles.container}>
+        <KeyboardAwareScrollView
+          contentContainerStyle={{ flexGrow: 1 }}
+          enableOnAndroid
+          keyboardShouldPersistTaps="handled"
+          extraScrollHeight={Platform.OS === "ios" ? 80 : 20}
+        >
+          <View style={{ flex: 1 }}>
+            <View style={styles.messagesWrapper}>
+              {messages.map((item, index) => (
+                <View
+                  key={index + Math.random().toString()}
+                  style={[
+                    styles.messageRow,
+                    item.isUser ? styles.userRow : styles.botRow,
+                  ]}
+                >
+                  {!item.isUser && (
+                    <Ionicons
+                      name="chatbubble-ellipses-outline"
+                      size={24}
+                      color="white"
+                      style={styles.avatar}
+                    />
+                  )}
+                  <View
+                    style={[
+                      styles.messageBubble,
+                      item.isUser ? styles.userMessage : styles.botMessage,
+                    ]}
+                  >
+                    <Text style={styles.messageText}>{item.text}</Text>
+                    <Text style={styles.timestamp}>{item.timestamp}</Text>
+                  </View>
+                  {item.isUser && (
+                    <Ionicons
+                      name="person-circle-outline"
+                      size={24}
+                      color="white"
+                      style={styles.avatar}
+                    />
+                  )}
+                </View>
+              ))}
             </View>
-          ))}
-        </View>
+            {loading && <Text style={styles.loadingText}>Thinking...</Text>}
+          </View>
 
-        {loading && <Text style={styles.loadingText}>Thinking...</Text>}
-      </KeyboardAwareScrollView>
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="Ask me anything..."
-          value={inputText}
-          onChangeText={setInputText}
-          multiline
-          placeholderTextColor="#aaa"
-        />
-        <Pressable style={styles.sendButton} onPress={handleSendMessage}>
-          <Ionicons name="send" size={20} color="white" />
-        </Pressable>
-      </View>
-    </SafeAreaView>
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={styles.input}
+              placeholder="Ask me anything..."
+              value={inputText}
+              onChangeText={setInputText}
+              multiline
+              placeholderTextColor="#aaa"
+            />
+            <Pressable style={styles.sendButton} onPress={handleSendMessage}>
+              <Ionicons name="send" size={20} color="white" />
+            </Pressable>
+          </View>
+        </KeyboardAwareScrollView>
+      </SafeAreaView>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -130,25 +142,30 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: GlobalStyles.colors.primary700,
   },
-  inner: {
-    flex: 1,
+
+  messagesWrapper: {
     padding: 12,
   },
+
   messageRow: {
     flexDirection: "row",
     alignItems: "flex-end",
     marginVertical: 4,
     paddingHorizontal: 6,
   },
+
   userRow: {
     justifyContent: "flex-end",
   },
+
   botRow: {
     justifyContent: "flex-start",
   },
+
   avatar: {
     marginHorizontal: 6,
   },
+
   messageBubble: {
     maxWidth: "75%",
     paddingVertical: 10,
@@ -156,31 +173,38 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     shadowOpacity: 0.1,
   },
+
   userMessage: {
     backgroundColor: GlobalStyles.colors.primary500,
     borderBottomRightRadius: 0,
   },
+
   botMessage: {
     backgroundColor: "#444",
     borderBottomLeftRadius: 0,
   },
+
   messageText: {
     color: "white",
     fontSize: 15,
   },
+
   timestamp: {
     color: "#ccc",
     fontSize: 11,
     marginTop: 4,
     textAlign: "right",
   },
+
   inputContainer: {
     flexDirection: "row",
     borderTopWidth: 1,
     borderColor: GlobalStyles.colors.primary400,
     padding: 10,
     alignItems: "center",
+    backgroundColor: GlobalStyles.colors.primary700,
   },
+
   input: {
     flex: 1,
     backgroundColor: "#fff",
@@ -189,12 +213,14 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     fontSize: 16,
   },
+
   sendButton: {
     backgroundColor: GlobalStyles.colors.accent500,
     borderRadius: 20,
     padding: 10,
     marginLeft: 10,
   },
+
   loadingText: {
     textAlign: "center",
     color: "#ccc",

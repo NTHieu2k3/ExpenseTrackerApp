@@ -3,7 +3,7 @@ import { GlobalStyles } from "../../constants/styles";
 import { getFormattedDate } from "../../util/date";
 import { useNavigation } from "@react-navigation/native";
 
-function ExpenseItem({ id, description, amount, date }) {
+function ExpenseItem({ id, description, amount, date, overridden }) {
   const navigation = useNavigation();
 
   //Truyền ID của item sang ManageExpense
@@ -18,13 +18,13 @@ function ExpenseItem({ id, description, amount, date }) {
       onPress={expensePressHandler}
       style={({ pressed }) => pressed && styles.pressed}
     >
-      <View style={styles.expenseItem}>
+      <View style={[styles.expenseItem, overridden && styles.overridden]}>
         <View>
-          <Text style={[styles.textBase, styles.description]}>
+          <Text numberOfLines={1} style={[styles.textBase, styles.description]}>
             {description.trim()}
           </Text>
           <Text style={styles.textBase}>{getFormattedDate(date)}</Text>
-        </View> 
+        </View>
         <View style={styles.amountContainer}>
           <Text style={styles.amount}>${amount.toFixed(2)}</Text>
         </View>
@@ -58,6 +58,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     marginBottom: 4,
+    maxWidth: 150,
   },
 
   amountContainer: {
@@ -78,5 +79,11 @@ const styles = StyleSheet.create({
   pressed: {
     opacity: 0.85,
     transform: [{ scale: 0.96 }],
+  },
+
+  overridden: {
+    backgroundColor: "#ee3131", // hoặc màu nhấn mạnh dễ thấy
+    borderLeftWidth: 4,
+    borderLeftColor: "red",
   },
 });

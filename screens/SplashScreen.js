@@ -36,7 +36,7 @@ const pages = [
   },
 ];
 
-export default function SplashScreen() {
+export default function SplashScreenn() {
   const navigation = useNavigation();
   const scrollX = useRef(new Animated.Value(0)).current;
   const [index, setIndex] = useState(0);

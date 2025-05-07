@@ -11,7 +11,7 @@ export const ExpensesContex = createContext({
   addExpense: ({ description, amount, date, category }) => {},
   setExpenses: (expenses) => {},
   deleteExpense: (id) => {},
-  updateExpense: (id, { description, amount, date, category }) => {},
+  update: (id, { description, amount, date, category }) => {},
 });
 
 //Xử lý các hành động với danh sách chi tiêu
@@ -85,13 +85,20 @@ function ExpensesContexProvider({ children }) {
   }
 
   //Kiểm tra và thông báo cho người dùng khi Add/Update có bị vượt qua ngân sách chi tiêu còn lại hay không
-  async function validateAndAddExpense(expenseData, isUpdate = false) {
+  async function validateAndAddExpense(
+    expenseData,
+    onSuccess,
+    isUpdate = false,
+    customExpensesList = null
+  ) {
     const { id, date, amount, category } = expenseData;
     if (!id || !date || !amount || !category) return;
 
     const expenseDate = new Date(date);
+    expenseDate.setHours(0, 0, 0, 0); // 💡 reset giờ
+
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // reset giờ
+    today.setHours(0, 0, 0, 0);
 
     const proceed = async () => {
       const selectedYear = expenseDate.getFullYear();
@@ -101,7 +108,9 @@ function ExpensesContexProvider({ children }) {
 
       const salaryData = await fetchSalaryData(selectedYear, selectedMonth);
 
-      let updatedExpenses = [...expensesState];
+      let updatedExpenses = customExpensesList
+        ? [...customExpensesList]
+        : [...expensesState];
       if (isUpdate) {
         updatedExpenses = updatedExpenses.filter((e) => e.id !== id);
       }
@@ -120,31 +129,46 @@ function ExpensesContexProvider({ children }) {
         filterType
       );
 
+      const dispatchData = () => {
+        const cleanedExpenseData = { ...expenseData };
+        delete cleanedExpenseData.overridden;
+
+        dispatch({
+          type: isUpdate ? "UPDATE" : "ADD",
+          payload: isUpdate
+            ? { id, data: cleanedExpenseData }
+            : cleanedExpenseData,
+        });
+        if (onSuccess) onSuccess();
+      };
+
+      const dispatchDataWithOverride = () => {
+        const dataWithFlag = { ...expenseData, overridden: true };
+        dispatch({
+          type: isUpdate ? "UPDATE" : "ADD",
+          payload: isUpdate ? { id, data: dataWithFlag } : dataWithFlag,
+        });
+        if (onSuccess) onSuccess();
+      };
+
       if (amount > totalRemaining) {
         Alert.alert(
-          "Vượt ngân sách",
-          "Khoản chi vượt quá ngân sách còn lại. Bạn có muốn tiếp tục?",
+          "Over Budget",
+          "This expense exceeds your remaining budget. Do you want to continue?",
           [
-            { text: "Không", style: "cancel" },
+            { text: "Cancel", style: "cancel" },
             {
-              text: "Có",
+              text: "Add anyway",
               onPress: () => {
-                dispatch({
-                  type: isUpdate ? "UPDATE" : "ADD",
-                  payload: isUpdate ? { id, data: expenseData } : expenseData,
-                });
+                dispatchDataWithOverride(); // chỉ override khi người dùng xác nhận
               },
             },
           ]
         );
       } else {
-        dispatch({
-          type: isUpdate ? "UPDATE" : "ADD",
-          payload: isUpdate ? { id, data: expenseData } : expenseData,
-        });
+        dispatchData(); // không override nếu không vượt
       }
     };
-
     if (expenseDate > today) {
       Alert.alert(
         "Future Date",
@@ -159,8 +183,8 @@ function ExpensesContexProvider({ children }) {
     }
   }
 
-  function addExpense(expenseData) {
-    validateAndAddExpense(expenseData, false);
+  function addExpense(expenseData, onSuccess, customList) {
+    validateAndAddExpense(expenseData, onSuccess, false, customList);
   }
 
   function setExpenses(expenses) {
@@ -171,8 +195,8 @@ function ExpensesContexProvider({ children }) {
     dispatch({ type: "DELETE", payload: id });
   }
 
-  function updateExpense(id, expenseData) {
-    validateAndAddExpense({ ...expenseData, id }, true);
+  function update(id, expenseData, onSuccess, customList) {
+    validateAndAddExpense({ ...expenseData, id }, onSuccess, true, customList);
   }
 
   const value = {
@@ -180,7 +204,7 @@ function ExpensesContexProvider({ children }) {
     setExpenses: setExpenses,
     addExpense: addExpense,
     deleteExpense: deleteExpense,
-    updateExpense: updateExpense,
+    update: update,
   };
 
   return (

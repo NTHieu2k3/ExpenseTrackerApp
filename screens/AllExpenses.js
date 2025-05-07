@@ -3,6 +3,8 @@ import { useContext, useState, useMemo } from "react";
 import { ExpensesContex } from "../store/expenses-contex";
 import ExpensesOutput from "../components/ExpensesOutput/ExpensesOutput";
 import { GlobalStyles } from "../constants/styles";
+import { AuthContex } from "../store/auth-contex";
+import { fetchExpenses } from "../util/http";
 
 const sortOptions = [
   { id: "newest", label: "Newest" },
@@ -13,6 +15,8 @@ const sortOptions = [
 
 function AllExpenses() {
   const expensesCtx = useContext(ExpensesContex);
+  const authCtx = useContext(AuthContex);
+
   const [sortType, setSortType] = useState("newest");
 
   const sortedExpenses = useMemo(() => {
@@ -29,6 +33,15 @@ function AllExpenses() {
         return expenses.sort((a, b) => new Date(b.date) - new Date(a.date));
     }
   }, [sortType, expensesCtx.expenses]);
+
+  async function refreshExpensesHandler() {
+    try {
+      const fetched = await fetchExpenses(authCtx.token, authCtx.uid);
+      expensesCtx.setExpenses(fetched);
+    } catch (err) {
+      console.error("Failed to refresh expenses", err);
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -64,6 +77,7 @@ function AllExpenses() {
           expenses={sortedExpenses}
           expensesPeriod="Total"
           fallbackText="No expenses found."
+          onRefreshExpenses={refreshExpensesHandler}
         />
       </View>
     </View>

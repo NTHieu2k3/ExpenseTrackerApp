@@ -1,16 +1,46 @@
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import ExpensesSumary from "./ExpensesSumary";
 import ExpensesList from "./ExpensesList";
 import { GlobalStyles } from "../../constants/styles";
+import { useCallback, useState } from "react";
 
-function ExpensesOutput({ expenses, expensesPeriod, fallbackText }) {
+function ExpensesOutput({
+  expenses,
+  expensesPeriod,
+  fallbackText,
+  onRefreshExpenses,
+}) {
   const hasExpenses = expenses && expenses.length > 0;
+
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await onRefreshExpenses?.();
+    } catch (error) {
+      console.error("Error refreshing expenses:", error);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [onRefreshExpenses]);
 
   return (
     <View style={styles.container}>
       <ExpensesSumary expenses={expenses} periodName={expensesPeriod} />
       {hasExpenses ? (
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <ScrollView
+          contentContainerStyle={styles.scrollContainer}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+        >
           <ExpensesList expenses={expenses} groupByCategory />
         </ScrollView>
       ) : (

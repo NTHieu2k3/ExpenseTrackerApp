@@ -20,12 +20,14 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import IconButton from "../../components/UI/IconButton";
 import LoadingOverlay from "../../components/UI/LoadingOverlay";
 import Button from "../../components/UI/Button";
+import ErrorOverlay from "../../components/UI/ErrorOverlay";
 
 function ChangePasswordScreen({ navigation }) {
   const authCtx = useContext(AuthContex);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState();
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -66,22 +68,25 @@ function ChangePasswordScreen({ navigation }) {
       await changePassword(authCtx.token, newPassword);
       Alert.alert(
         "SUCCESSED",
-        "Password changed successfully ! Please Login again to continue !",
-        {
-          text: "OK",
-          onPress: () => authCtx.logout(),
-        }
+        "Password changed successfully! Please Login again to continue!",
+        [
+          {
+            text: "OK",
+            onPress: () => authCtx.logout(),
+          },
+        ]
       );
       navigation.goBack();
     } catch (error) {
-      Alert.alert(
-        "ERROR",
-        "Unable to change password. Please try again later !"
-      );
+      setError("Unable to change password. Please try again later !");
       console.log(error);
     }
 
     setIsLoading(false);
+  }
+
+  if (error && !isLoading) {
+    return <ErrorOverlay message={error} onConfirm={() => setError(null)} />;
   }
 
   if (isLoading) {

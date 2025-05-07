@@ -19,6 +19,8 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import IconButton from "../../components/UI/IconButton";
 import Button from "../../components/UI/Button";
 import { FontAwesome5 } from "@expo/vector-icons";
+import ErrorOverlay from "../../components/UI/ErrorOverlay";
+import LoadingOverlay from "../../components/UI/LoadingOverlay";
 
 function UpdateSalary({ navigation }) {
   const authCtx = useContext(AuthContex);
@@ -27,6 +29,7 @@ function UpdateSalary({ navigation }) {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState();
 
   //Chạy mỗi khi selectedDate thay đổi để get lương từ db
   useEffect(() => {
@@ -43,11 +46,13 @@ function UpdateSalary({ navigation }) {
         );
         setSalary(data.salary.toString());
         setSavingsGoal(data.savingsGoal.toString());
+        setIsLoading(false);
       } catch (error) {
-        Alert.alert("Error", "Failed to load salary data.");
+        setIsLoading(false);
+        setError("Failed to load salary data.");
         console.log(error);
       }
-      setIsLoading(false);
+      
     }
     loadSalary();
   }, [selectedDate]);
@@ -87,10 +92,18 @@ function UpdateSalary({ navigation }) {
       Alert.alert("Success", "Salary updated successfully.");
       navigation.goBack();
     } catch (error) {
-      Alert.alert("Error", "Failed to update salary.");
+      setError("Failed to update salary. Please try again later.");
       console.log(error);
     }
     setIsLoading(false);
+  }
+
+  if (error && !isLoading) {
+    return <ErrorOverlay message={error} onConfirm={() => setError(null)} />;
+  }
+
+  if (isLoading) {
+    return <LoadingOverlay />;
   }
 
   return (
@@ -99,82 +112,79 @@ function UpdateSalary({ navigation }) {
       style={styles.container}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        {isLoading && (
-          <View style={styles.loadingOverlay}>
-            <Text style={styles.loadingText}>Please wait...</Text>
-          </View>
-        )}
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
-          <View style={styles.titleContainer}>
-            <FontAwesome5
-              name="wallet"
-              size={30}
-              color="white"
-              style={styles.icon}
-            />
-            <Text style={styles.title}>Update Salary & Savings</Text>
-          </View>
-          <Text style={styles.label}>Select month / year:</Text>
-          <View style={styles.datePickerContainer}>
-            <Text style={styles.dateText}>
-              {selectedDate.toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "long",
-              })}
-            </Text>
-            <IconButton
-              icon="calendar"
-              color={GlobalStyles.colors.primary500}
-              size={24}
-              onPress={() => setShowDatePicker(true)}
-            />
-          </View>
-          {showDatePicker && (
-            <DateTimePicker
-              value={selectedDate}
-              mode="date"
-              display="spinner"
-              onChange={dateChangedHandler}
-              textColor="white"
-              fontSize="16"
-            />
-          )}
+        <View>
+          <ScrollView contentContainerStyle={styles.scrollContainer}>
+            <View style={styles.titleContainer}>
+              <FontAwesome5
+                name="wallet"
+                size={30}
+                color="white"
+                style={styles.icon}
+              />
+              <Text style={styles.title}>Update Salary & Savings</Text>
+            </View>
+            <Text style={styles.label}>Select month / year:</Text>
+            <View style={styles.datePickerContainer}>
+              <Text style={styles.dateText}>
+                {selectedDate.toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                })}
+              </Text>
+              <IconButton
+                icon="calendar"
+                color={GlobalStyles.colors.primary500}
+                size={24}
+                onPress={() => setShowDatePicker(true)}
+              />
+            </View>
+            {showDatePicker && (
+              <DateTimePicker
+                value={selectedDate}
+                mode="date"
+                display="spinner"
+                onChange={dateChangedHandler}
+                textColor="white"
+                fontSize="16"
+              />
+            )}
 
-          <Text style={styles.label}>Enter new salary:</Text>
-          <View style={styles.inputContainer}>
-            <Text style={styles.dollarSign}>$</Text>
-            <TextInput
-              style={styles.input}
-              keyboardType="decimal-pad"
-              value={salary.replace(",", ".")}
-              onChangeText={setSalary}
-              placeholder="Enter amount..."
-              placeholderTextColor={GlobalStyles.colors.gray500}
-            />
-          </View>
+            <Text style={styles.label}>Enter new salary:</Text>
+            <View style={styles.inputContainer}>
+              <Text style={styles.dollarSign}>$</Text>
+              <TextInput
+                style={styles.input}
+                keyboardType="decimal-pad"
+                value={salary.replace(",", ".")}
+                onChangeText={setSalary}
+                placeholder="Enter amount..."
+                placeholderTextColor={GlobalStyles.colors.gray500}
+              />
+            </View>
 
-          <Text style={styles.label}>Enter savings goal:</Text>
-          <View style={styles.inputContainer}>
-            <Text style={styles.dollarSign}>$</Text>
-            <TextInput
-              style={styles.input}
-              keyboardType="decimal-pad"
-              value={savingsGoal.replace(",", ".")}
-              onChangeText={setSavingsGoal}
-              placeholder="Enter amount..."
-              placeholderTextColor={GlobalStyles.colors.gray500}
-            />
-          </View>
+            <Text style={styles.label}>Enter savings goal:</Text>
+            <View style={styles.inputContainer}>
+              <Text style={styles.dollarSign}>$</Text>
+              <TextInput
+                style={styles.input}
+                keyboardType="decimal-pad"
+                value={savingsGoal.replace(",", ".")}
+                onChangeText={setSavingsGoal}
+                placeholder="Enter amount..."
+                placeholderTextColor={GlobalStyles.colors.gray500}
+              />
+            </View>
 
-          <View style={styles.buttonContainer}>
-            <Button onPress={handleUpdate} style={styles.button}>
-              Update
-            </Button>
-            <Button onPress={navigation.goBack} style={styles.button}>
-              Cancel
-            </Button>
-          </View>
-        </ScrollView>
+            <View style={styles.buttonContainer}>
+              <Button onPress={handleUpdate} style={styles.button}>
+                Update
+              </Button>
+              <Button onPress={navigation.goBack} style={styles.button}>
+                Cancel
+              </Button>
+            </View>
+          </ScrollView>
+        </View>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
   );

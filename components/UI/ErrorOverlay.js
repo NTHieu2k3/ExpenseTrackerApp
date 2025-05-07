@@ -1,11 +1,16 @@
-import { StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { GlobalStyles } from "../../constants/styles";
 
-function ErrorOverlay({ message }) {
+function ErrorOverlay({ message, onConfirm }) {
   return (
     <View style={styles.container}>
       <Text style={[styles.text, styles.title]}>An error occurred</Text>
       <Text style={styles.text}>{message}</Text>
+      {onConfirm && (
+        <Pressable onPress={onConfirm} style={styles.button}>
+          <Text style={styles.buttonText}>Try Again</Text>
+        </Pressable>
+      )}
     </View>
   );
 }
@@ -37,5 +42,19 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "500",
     color: GlobalStyles.colors.error100,
+  },
+
+  button: {
+    marginTop: 16,
+    backgroundColor: "white",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+  },
+
+  buttonText: {
+    color: GlobalStyles.colors.error500,
+    fontWeight: "bold",
+    fontSize: 16,
   },
 });

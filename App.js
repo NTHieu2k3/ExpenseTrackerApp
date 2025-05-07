@@ -1,37 +1,63 @@
 import { StatusBar } from "expo-status-bar";
-import { NavigationContainer, useNavigation } from "@react-navigation/native";
+import {
+  NavigationContainer,
+  createNavigationContainerRef,
+  useNavigation,
+} from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { GlobalStyles } from "./constants/styles";
 import { Ionicons } from "@expo/vector-icons";
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
+import { View } from "react-native";
 
-import Apploading from "expo-app-loading";
+import * as SplashScreen from "expo-splash-screen";
+import * as Notifications from "expo-notifications";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+// Screens
 import ManageExpense from "./screens/ManageExpense";
 import RecentExpenses from "./screens/RecentExpenses";
 import AllExpenses from "./screens/AllExpenses";
 import ChartExpenses from "./screens/ChartExpenses";
 import ProfileUser from "./screens/ProfileUser";
-import IconButton from "./components/UI/IconButton";
-import ExpensesContexProvider from "./store/expenses-contex";
 import LoginScreen from "./screens/Auth/LoginScreen";
 import SignupScreen from "./screens/Auth/SignupScreen";
-import AuthContexProvider, { AuthContex } from "./store/auth-contex";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import ChangePassScreen from "./screens/Auth/ChangePassScreen";
 import SupportScreen from "./screens/SupportScreen";
 import WelcomeScreen from "./screens/WelcomScreen";
 import UpdateSalary from "./screens/UpdateScreen/UpdateSalary";
 import SearchExpense from "./screens/SearchExpense";
-import SplashScreen from "./screens/SplashScreen";
 import VerifyPhoneNumber from "./screens/Auth/VerifyPhoneNumber";
 import ExpenseReport from "./screens/ExpensesReport";
+import SplashScreenn from "./screens/SplashScreen";
 
+// Context & UI
+import IconButton from "./components/UI/IconButton";
+import ExpensesContexProvider from "./store/expenses-contex";
+import AuthContexProvider, { AuthContex } from "./store/auth-contex";
+import InfoScreen from "./screens/InfoScreen";
+
+// ✅ Setup splash control
+SplashScreen.preventAutoHideAsync();
+
+// ✅ Setup Notifications
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+    shouldShowBanner: true,
+    shouldShowList: true,
+  }),
+});
+
+const navigationRef = createNavigationContainerRef();
 const Stack = createNativeStackNavigator();
 const BottomTabs = createBottomTabNavigator();
 
 function ExpensesOverview() {
   const navigation = useNavigation();
+
   return (
     <BottomTabs.Navigator
       screenOptions={({ route }) => ({
@@ -45,9 +71,7 @@ function ExpensesOverview() {
               icon="add"
               size={30}
               color={tintColor}
-              onPress={() => {
-                navigation.navigate("ManageExpense");
-              }}
+              onPress={() => navigation.navigate("ManageExpense")}
             />
           ),
         headerLeft: ({ tintColor }) =>
@@ -56,9 +80,7 @@ function ExpensesOverview() {
               icon="chatbox-ellipses-outline"
               size={30}
               color={tintColor}
-              onPress={() => {
-                navigation.navigate("SupportScreen");
-              }}
+              onPress={() => navigation.navigate("SupportScreen")}
             />
           ),
       })}
@@ -115,20 +137,17 @@ function ExpensesOverview() {
   );
 }
 
-//Thêm màn hình chào, đăng nhập, đăng ký vào stack
 function AuthStack() {
   return (
     <Stack.Navigator
       screenOptions={{
-        headerStyle: {
-          backgroundColor: GlobalStyles.colors.primary500,
-        },
+        headerStyle: { backgroundColor: GlobalStyles.colors.primary500 },
         headerTintColor: "white",
       }}
     >
       <Stack.Screen
         name="SplashScreen"
-        component={SplashScreen}
+        component={SplashScreenn}
         options={{ headerShown: false }}
       />
       <Stack.Screen
@@ -145,14 +164,11 @@ function AuthStack() {
   );
 }
 
-//Thêm các màn hình khác vào stack
 function AuthenticatedStack() {
   return (
     <Stack.Navigator
       screenOptions={{
-        headerStyle: {
-          backgroundColor: GlobalStyles.colors.primary500,
-        },
+        headerStyle: { backgroundColor: GlobalStyles.colors.primary500 },
         headerTintColor: "white",
       }}
     >
@@ -169,10 +185,7 @@ function AuthenticatedStack() {
       <Stack.Screen
         name="ManageExpense"
         component={ManageExpense}
-        options={{
-          presentation: "modal",
-          headerTitleAlign: "center",
-        }}
+        options={{ presentation: "modal", headerTitleAlign: "center" }}
       />
       <Stack.Screen
         name="ChangePassword"
@@ -195,6 +208,11 @@ function AuthenticatedStack() {
         options={{ headerShown: false }}
       />
       <Stack.Screen
+        name="InfoScreen"
+        component={InfoScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
         name="VerifyPhoneNumber"
         component={VerifyPhoneNumber}
         options={{ headerShown: false }}
@@ -208,23 +226,25 @@ function AuthenticatedStack() {
   );
 }
 
-//Xử lý xem đã đăng nhập chưa ? Nếu chưa thì cho đăng nhập còn rồi thì vào màn hình chính luôn
 function Navigation() {
   const authCtx = useContext(AuthContex);
-
   return (
-    <NavigationContainer>
-      {!authCtx.isAuthenticated && <AuthStack />}
-      {authCtx.isAuthenticated && <AuthenticatedStack />}
+    <NavigationContainer ref={navigationRef}>
+      {authCtx.isAuthenticated ? <AuthenticatedStack /> : <AuthStack />}
     </NavigationContainer>
   );
 }
 
 function Root() {
   const [isTryingLogin, setIsTryingLogin] = useState(true);
-
   const authCtx = useContext(AuthContex);
-  
+
+  const onLayoutRootView = useCallback(async () => {
+    if (!isTryingLogin) {
+      await SplashScreen.hideAsync();
+    }
+  }, [isTryingLogin]);
+
   useEffect(() => {
     async function fetchToken() {
       try {
@@ -234,30 +254,41 @@ function Root() {
 
         if (storedToken && storedUid && storedEmail) {
           authCtx.authenticate(storedToken, storedUid, storedEmail, true);
-        } else {
-          console.warn("Missing stored values:", {
-            storedToken,
-            storedUid,
-            storedEmail,
-          });
         }
       } catch (err) {
         console.error("Error restoring auth from storage:", err);
+      } finally {
+        setIsTryingLogin(false);
       }
-
-      setIsTryingLogin(false);
     }
 
     fetchToken();
   }, []);
 
   if (isTryingLogin) {
-    return <Apploading />;
+    return null;
   }
-  return <Navigation />;
+
+  return (
+    <View style={{ flex: 1 }} onLayout={onLayoutRootView}>
+      <Navigation />
+    </View>
+  );
 }
 
 export default function App() {
+  useEffect(() => {
+    const subscription = Notifications.addNotificationResponseReceivedListener(
+      (response) => {
+        const expenseId = response.notification.request.content.data?.id;
+        if (expenseId && navigationRef.isReady()) {
+          navigationRef.navigate("ManageExpense", { expenseId });
+        }
+      }
+    );
+
+    return () => subscription.remove();
+  }, []);
   return (
     <>
       <StatusBar style="light" />

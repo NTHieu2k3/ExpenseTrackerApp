@@ -41,11 +41,16 @@ function RecentExpenses() {
     getExpenses();
   }, [authCtx.token, authCtx.uid]);
 
-  if (error && !isFetching) return <ErrorOverlay message={error} />;
+  if (error && !isFetching)
+    return <ErrorOverlay message={error} onConfirm={() => setError(null)} />;
   if (isFetching) return <LoadingOverlay />;
 
   const filteredExpenses = expensesCtx.expenses.filter((expense) => {
-    return expense.date >= startDate && expense.date <= endDate;
+    const expenseDate = new Date(expense.date);
+    return (
+      expenseDate >= getStartOfDay(startDate) &&
+      expenseDate <= getEndOfDay(endDate)
+    );
   });
 
   function toggleStartPicker() {
@@ -56,6 +61,42 @@ function RecentExpenses() {
   function toggleEndPicker() {
     setShowEndPicker((prev) => !prev);
     setShowStartPicker(false);
+  }
+
+  function getStartOfDay(date) {
+    const d = new Date(date);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }
+
+  function getEndOfDay(date) {
+    const d = new Date(date);
+    d.setHours(23, 59, 59, 999);
+    return d;
+  }
+
+  async function refreshExpensesHandler() {
+    try {
+      const fetched = await fetchExpenses(authCtx.token, authCtx.uid);
+      expensesCtx.setExpenses(fetched);
+    } catch (err) {
+      console.error("Refresh error:", err);
+    }
+  }
+  if (startDate > endDate) {
+    return (
+      <ErrorOverlay
+        message="⚠️ Start date must be earlier than or equal to end date."
+        onConfirm={() => {
+          const today = new Date();
+          const defaultStart = new Date(today);
+          defaultStart.setDate(today.getDate() - 7);
+          setStartDate(defaultStart);
+          setEndDate(today);
+          setError(null);
+        }}
+      />
+    );
   }
 
   return (
@@ -108,6 +149,7 @@ function RecentExpenses() {
           expenses={filteredExpenses}
           expensesPeriod={`${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`}
           fallbackText="No expenses found in the selected period."
+          onRefreshExpenses={refreshExpensesHandler}
         />
       </View>
     </View>

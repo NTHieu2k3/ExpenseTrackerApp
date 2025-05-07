@@ -15,11 +15,13 @@ import { AuthContex } from "../../store/auth-contex";
 import Button from "../../components/UI/Button";
 import { GlobalStyles } from "../../constants/styles";
 import { storePhoneNumber, fetchPhoneNumber } from "../../util/http";
+import ErrorOverlay from "../../components/UI/ErrorOverlay";
 
 function VerifyPhoneNumber({ navigation }) {
   const authCtx = useContext(AuthContex);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState();
 
   // ✅ Tự động lấy số điện thoại khi mở màn hình
   useEffect(() => {
@@ -28,7 +30,8 @@ function VerifyPhoneNumber({ navigation }) {
         const fetchedPhone = await fetchPhoneNumber(authCtx.token, authCtx.uid);
         if (fetchedPhone) setPhoneNumber(fetchedPhone);
       } catch (error) {
-        console.error("Failed to fetch phone number:", error);
+        setError("Failed to load phone number. Please try again later.");
+        console.log(error)
       }
     }
 
@@ -47,10 +50,14 @@ function VerifyPhoneNumber({ navigation }) {
       Alert.alert("Success", "Phone number saved successfully.");
       navigation.goBack();
     } catch (error) {
-      Alert.alert("Error", "Failed to save phone number.");
+      setError("Failed to save phone number. Please try again later.");
       console.log(error);
     }
     setIsLoading(false);
+  }
+
+  if (error && !isLoading) {
+    return <ErrorOverlay message={error} onConfirm={() => setError(null)} />;
   }
 
   return (

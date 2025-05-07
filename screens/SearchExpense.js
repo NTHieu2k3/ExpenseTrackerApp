@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useCallback } from "react";
 import {
   View,
   Platform,
@@ -6,6 +6,7 @@ import {
   SafeAreaView,
   Text,
   ScrollView,
+  RefreshControl,
 } from "react-native";
 import { GlobalStyles } from "../constants/styles";
 import { fetchExpenses } from "../util/http";
@@ -15,32 +16,36 @@ import { useNavigation } from "@react-navigation/native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import ExpensesOutput from "../components/ExpensesOutput/ExpensesOutput";
 import Button from "../components/UI/Button";
-import LoadingOverlay from "../components/UI/LoadingOverlay";
 import IconButton from "../components/UI/IconButton";
 
 function SearchExpense() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [showPicker, setShowPicker] = useState(false);
   const [expenses, setExpenses] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   const authCtx = useContext(AuthContex);
   const { token, uid } = authCtx;
   const navigation = useNavigation();
 
-  useEffect(() => {
-    async function getExpenses() {
-      setIsLoading(true);
-      try {
-        const fetchedExpenses = await fetchExpenses(token, uid);
-        setExpenses(fetchedExpenses);
-      } catch (error) {
-        console.error("Error fetching expenses:", error);
-      }
-      setIsLoading(false);
+  const loadExpenses = useCallback(async () => {
+    try {
+      const fetchedExpenses = await fetchExpenses(token, uid);
+      setExpenses(fetchedExpenses);
+    } catch (error) {
+      console.error("Error fetching expenses:", error);
     }
-    getExpenses();
   }, [token, uid]);
+
+  useEffect(() => {
+    loadExpenses();
+  }, [loadExpenses]);
+
+  async function refreshExpensesHandler() {
+    setRefreshing(true);
+    await loadExpenses();
+    setRefreshing(false);
+  }
 
   function showDatePicker() {
     setShowPicker(true);
@@ -65,7 +70,16 @@ function SearchExpense() {
 
   return (
     <SafeAreaView style={styles.root}>
-      <ScrollView contentContainerStyle={styles.container}>
+      <ScrollView
+        contentContainerStyle={styles.container}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={refreshExpensesHandler}
+            tintColor="white"
+          />
+        }
+      >
         <Text style={styles.title}>🔍 Search Expenses by Date</Text>
 
         <View style={styles.card}>
@@ -98,22 +112,18 @@ function SearchExpense() {
           />
         )}
 
-        {isLoading ? (
-          <LoadingOverlay />
-        ) : (
-          <View style={styles.results}>
-            <ExpensesOutput
-              expenses={filteredExpenses}
-              expensesPeriod="Results"
-              fallbackText="No expenses found for this day!"
-            />
-          </View>
-        )}
-
-        <View style={styles.buttonContainer}>
-          <Button onPress={navigation.goBack}>← Return</Button>
+        <View style={styles.results}>
+          <ExpensesOutput
+            expenses={filteredExpenses}
+            expensesPeriod="Results"
+            fallbackText="No expenses found for this day!"
+          />
         </View>
       </ScrollView>
+
+      <View style={styles.bottomButtonContainer}>
+        <Button onPress={navigation.goBack}>← Return</Button>
+      </View>
     </SafeAreaView>
   );
 }
@@ -126,8 +136,9 @@ const styles = StyleSheet.create({
     backgroundColor: GlobalStyles.colors.primary700,
   },
   container: {
-    padding: 24,
-    paddingBottom: 40,
+    paddingTop: 40,
+    paddingBottom: 60,
+    
   },
   title: {
     fontSize: 22,
@@ -146,6 +157,20 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     marginBottom: 24,
   },
+  bottomButtonContainer: {
+    position: "absolute",
+    bottom: 20,
+    left: 20,
+    right: 20,
+    alignItems: "center",
+    backgroundColor: GlobalStyles.colors.primary700,
+    paddingVertical: 10,
+    borderRadius: 12,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+  },
   label: {
     fontSize: 16,
     color: GlobalStyles.colors.primary100,
@@ -163,8 +188,7 @@ const styles = StyleSheet.create({
   },
   results: {
     marginBottom: 32,
-  },
-  buttonContainer: {
-    alignItems: "center",
+    minHeight: 200,
+    minWidth: 100
   },
 });

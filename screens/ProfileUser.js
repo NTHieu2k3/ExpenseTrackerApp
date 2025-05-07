@@ -37,7 +37,7 @@ function ProfileUser() {
 
   if (isLoading) return <LoadingOverlay />;
 
-  const items = [
+  const feature = [
     {
       label: "Account Information",
       icon: "person-outline",
@@ -73,6 +73,11 @@ function ProfileUser() {
       icon: "document-text-outline",
       action: () => navigation.navigate("ExpensesReport"),
     },
+    {
+      label: "Information",
+      icon: "information-circle-outline",
+      action: () => navigation.navigate("InfoScreen"),
+    }
   ];
 
   return (
@@ -92,7 +97,7 @@ function ProfileUser() {
             </Text>
           </View>
 
-          {items.map((item, index) => (
+          {feature.map((item, index) => (
             <Pressable
               key={index + Math.random().toString()}
               style={({ pressed }) => [styles.item, pressed && styles.pressed]}

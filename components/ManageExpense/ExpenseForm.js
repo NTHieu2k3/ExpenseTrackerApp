@@ -7,6 +7,8 @@ import {
   Pressable,
   TextInput,
   Platform,
+  Keyboard,
+  TouchableWithoutFeedback,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { GlobalStyles } from "../../constants/styles";
@@ -23,7 +25,7 @@ function ExpenseForm({ onCancel, onSubmit, submitButtonLabel, defaultValues }) {
       isValid: true,
     },
     date: {
-      value: defaultValues ? getFormattedDate(defaultValues.date) : "",
+      value: defaultValues ? new Date(defaultValues.date) : new Date(),
       isValid: true,
     },
     description: {
@@ -59,10 +61,15 @@ function ExpenseForm({ onCancel, onSubmit, submitButtonLabel, defaultValues }) {
 
   const [showDatePicker, setShowDatePicker] = useState(false);
   function dateChangedHandler(event, selectedDate) {
+    if (event.type === "dismissed") {
+      setShowDatePicker(false);
+      return;
+    }
     const curDate = selectedDate || inputs.date.value;
+
     setInputs((curInputs) => ({
       ...curInputs,
-      date: { value: getFormattedDate(curDate), isValid: true },
+      date: { value: curDate, isValid: true },
     }));
     setShowDatePicker(false);
   }
@@ -102,108 +109,126 @@ function ExpenseForm({ onCancel, onSubmit, submitButtonLabel, defaultValues }) {
   }
 
   return (
-    <View style={styles.form}>
-      <Text style={styles.title}>💸 Add New Expense</Text>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <View style={styles.form}>
+        <Text style={styles.title}>💸 Add New Expense</Text>
 
-      {/* Amount Input */}
-      <View style={styles.inputGroup}>
-        <Ionicons name="cash-outline" size={20} color="#22C55E" />
-        <TextInput
-          placeholder="Amount"
-          placeholderTextColor="white"
-          style={[styles.input, !inputs.amount.isValid && styles.invalidInput]}
-          keyboardType="decimal-pad"
-          value={inputs.amount.value}
-          onChangeText={inputChangedHandler.bind(this, "amount")}
-        />
-      </View>
-
-      {/* Date Input */}
-      <View style={styles.inputGroup}>
-        <Ionicons name="calendar-outline" size={20} color="#38BDF8" />
-        <Pressable style={{ flex: 1 }} onPress={() => setShowDatePicker(true)}>
-          <Text
-            style={[styles.input, !inputs.date.isValid && styles.invalidInput]}
-          >
-            {inputs.date.value ? inputs.date.value : "Choose date"}
-          </Text>
-        </Pressable>
-      </View>
-
-      {showDatePicker && (
-        <DateTimePicker
-          value={inputs.date.value ? new Date(inputs.date.value) : new Date()}
-          mode="date"
-          textColor="white"
-          display={Platform.OS === "ios" ? "inline" : "default"}
-          onChange={dateChangedHandler}
-        />
-      )}
-
-      {/* Description Input */}
-      <View style={styles.inputGroup}>
-        <Ionicons name="pencil-outline" size={20} color="#FACC15" />
-        <TextInput
-          placeholder="Description"
-          placeholderTextColor="white"
-          multiline
-          style={[
-            styles.input,
-            styles.multilineInput,
-            !inputs.description.isValid && styles.invalidInput,
-          ]}
-          value={inputs.description.value}
-          onChangeText={inputChangedHandler.bind(this, "description")}
-        />
-      </View>
-
-      {/* Category */}
-      <Text style={styles.sectionTitle}>📂 Category</Text>
-      <View style={styles.categoryContainer}>
-        {CATEGORIES.map((cat) => (
-          <Pressable
-            key={cat.id}
-            onPress={() => selectCategoryHandler(cat.id)}
-            style={({ pressed }) => [
-              styles.categoryBox,
-              selectedCategory === cat.id && styles.categorySelected,
-              pressed && { opacity: 0.75 },
+        {/* Amount Input */}
+        <View style={styles.inputGroup}>
+          <Ionicons name="cash-outline" size={20} color="#22C55E" />
+          <TextInput
+            placeholder="Amount"
+            placeholderTextColor="white"
+            style={[
+              styles.input,
+              !inputs.amount.isValid && styles.invalidInput,
             ]}
+            keyboardType="decimal-pad"
+            value={inputs.amount.value}
+            onChangeText={inputChangedHandler.bind(this, "amount")}
+          />
+        </View>
+        {!inputs.amount.isValid && (
+          <Text style={styles.errorText}>⚠ Amount cannot be empty.</Text>
+        )}
+
+        {/* Date Input */}
+        <View style={styles.inputGroup}>
+          <Ionicons name="calendar-outline" size={20} color="#38BDF8" />
+          <Pressable
+            style={{ flex: 1 }}
+            onPress={() => setShowDatePicker(true)}
           >
-            <Ionicons
-              name={cat.icon}
-              size={24}
-              color={
-                selectedCategory === cat.id
-                  ? GlobalStyles.colors.accent500
-                  : "white"
-              }
-            />
             <Text
               style={[
-                styles.categoryText,
-                selectedCategory === cat.id && styles.categoryTextSelected,
+                styles.input,
+                !inputs.date.isValid && styles.invalidInput,
               ]}
             >
-              {cat.name}
+              {inputs.date.value
+                ? getFormattedDate(inputs.date.value)
+                : "Choose date"}
             </Text>
           </Pressable>
-        ))}
-      </View>
-      {!categoryIsValid && (
-        <Text style={styles.errorText}>⚠ Please choose a category!</Text>
-      )}
+        </View>
 
-      {/* Buttons */}
-      <View style={styles.buttons}>
-        <Button style={styles.button} mode="flat" onPress={onCancel}>
-          Cancel
-        </Button>
-        <Button style={styles.button} onPress={submitHandler}>
-          {submitButtonLabel}
-        </Button>
+        {showDatePicker && (
+          <DateTimePicker
+            value={inputs.date.value}
+            mode="date"
+            textColor="white"
+            display={Platform.OS === "ios" ? "inline" : "default"}
+            onChange={dateChangedHandler}
+          />
+        )}
+
+        {/* Description Input */}
+        <View style={styles.inputGroup}>
+          <Ionicons name="pencil-outline" size={20} color="#FACC15" />
+          <TextInput
+            placeholder="Description"
+            placeholderTextColor="white"
+            multiline
+            style={[
+              styles.input,
+              styles.multilineInput,
+              !inputs.description.isValid && styles.invalidInput,
+            ]}
+            value={inputs.description.value}
+            onChangeText={inputChangedHandler.bind(this, "description")}
+          />
+        </View>
+        {!inputs.description.isValid && (
+          <Text style={styles.errorText}>⚠ Description cannot be empty.</Text>
+        )}
+        {/* Category */}
+        <Text style={styles.sectionTitle}>📂 Category</Text>
+        <View style={styles.categoryContainer}>
+          {CATEGORIES.map((cat) => (
+            <Pressable
+              key={cat.id}
+              onPress={() => selectCategoryHandler(cat.id)}
+              style={({ pressed }) => [
+                styles.categoryBox,
+                selectedCategory === cat.id && styles.categorySelected,
+                pressed && { opacity: 0.75 },
+              ]}
+            >
+              <Ionicons
+                name={cat.icon}
+                size={24}
+                color={
+                  selectedCategory === cat.id
+                    ? GlobalStyles.colors.accent500
+                    : "white"
+                }
+              />
+              <Text
+                style={[
+                  styles.categoryText,
+                  selectedCategory === cat.id && styles.categoryTextSelected,
+                ]}
+              >
+                {cat.name}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+        {!categoryIsValid && (
+          <Text style={styles.errorText}>⚠ A category must be selected!</Text>
+        )}
+
+        {/* Buttons */}
+        <View style={styles.buttons}>
+          <Button style={styles.button} mode="flat" onPress={onCancel}>
+            Cancel
+          </Button>
+          <Button style={styles.button} onPress={submitHandler}>
+            {submitButtonLabel}
+          </Button>
+        </View>
       </View>
-    </View>
+    </TouchableWithoutFeedback>
   );
 }
 

@@ -43,13 +43,19 @@ function ForgotPasswordForm({ onBack }) {
       try {
         const exists = await checkEmailExists(inputValue);
         if (!exists) {
-          Alert.alert("Email Not Found", "This email is not registered.");
+          Alert.alert(
+            "Email Not Found",
+            "We couldn’t find an account with that email address."
+          );
           setIsSubmitting(false);
           return;
         }
 
         await resetPassword(inputValue);
-        Alert.alert("Success", "Check your email to reset your password.");
+        Alert.alert(
+          "Success",
+          "We've sent you a password reset email. Please check your email."
+        );
         onBack();
       } catch (error) {
         const msg =
@@ -60,7 +66,7 @@ function ForgotPasswordForm({ onBack }) {
     } else {
       Alert.alert(
         "Coming Soon",
-        "Password reset via phone number is currently under development."
+        "Password reset by phone number is currently under development."
       );
     }
   }
@@ -73,20 +79,23 @@ function ForgotPasswordForm({ onBack }) {
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ScrollView contentContainerStyle={styles.scroll}>
-          <Text style={styles.title}>Forgot Password</Text>
+          <Text style={styles.title}>🔐 Reset Your Password</Text>
+
           <Text style={styles.subtitle}>
             {isEmailMode
-              ? "We'll send a reset link to your email."
-              : "Reset via phone number is not available yet."}
+              ? "Enter your email address and we'll send you a link to reset your password."
+              : "Phone number reset is not available at the moment."}
           </Text>
 
           <View style={styles.switchContainer}>
             <Text style={styles.switchText}>
-              {isEmailMode ? "Prefer phone?" : "Prefer email?"}
+              {isEmailMode
+                ? "Want to use your phone instead ?"
+                : "Want to use your email instead ?"}
             </Text>
             <Pressable onPress={switchMode}>
               <Text style={styles.switchLink}>
-                {isEmailMode ? "Use Phone" : "Use Email"}
+                {isEmailMode ? "Reset by Phone" : "Reset by Email"}
               </Text>
             </Pressable>
           </View>
@@ -118,7 +127,7 @@ function ForgotPasswordForm({ onBack }) {
                   style={{ marginRight: 6 }}
                 />
                 <Text style={styles.submitText}>
-                  {isEmailMode ? "Send Reset Link" : "Coming Soon"}
+                  {isEmailMode ? "Send Reset Email" : "Coming Soon"}
                 </Text>
               </View>
             )}
@@ -140,14 +149,9 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: 20,
     padding: 24,
-    shadowColor: "black",
-    shadowOpacity: 0.25,
-    shadowRadius: 6,
-    shadowOffset: { width: 1, height: 2 },
-    elevation: 8,
   },
   title: {
-    fontSize: 24,
+    fontSize: 22,
     color: GlobalStyles.colors.primary50,
     fontWeight: "bold",
     textAlign: "center",
@@ -163,6 +167,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     marginBottom: 12,
+    flexWrap: "wrap",
   },
   switchText: {
     color: GlobalStyles.colors.primary100,

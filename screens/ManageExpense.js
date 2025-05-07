@@ -13,10 +13,16 @@ import {
 } from "react-native";
 import { GlobalStyles } from "../constants/styles";
 import { ExpensesContex } from "../store/expenses-contex";
-import { storeExpense, updateExpense, deleteExpense } from "../util/http";
+import {
+  storeExpense,
+  deleteExpense,
+  updateExpense,
+  fetchExpenses,
+} from "../util/http";
 import { Ionicons } from "@expo/vector-icons";
 import { AuthContex } from "../store/auth-contex";
 
+import * as Notifications from "expo-notifications";
 import ExpenseForm from "../components/ManageExpense/ExpenseForm";
 import LoadingOverlay from "../components/UI/LoadingOverlay";
 import ErrorOverlay from "../components/UI/ErrorOverlay";
@@ -44,21 +50,48 @@ function ManageExpense({ route, navigation }) {
     });
   }, [navigation, isEditing]);
 
-  //Xử lý button(icon trash) Delete
-  async function deleteExpenseHandler() {
-    setIsSubmitting(true);
+  async function refreshExpensesHandler() {
     try {
-      await deleteExpense(editedExpenseId, token, uid);
-      expensesCtx.deleteExpense(editedExpenseId);
-      navigation.goBack();
-    } catch (error) {
-      Alert.alert(
-        "Error",
-        "Could not delete expense - Please try again later !"
-      );
-      console.log(error);
-      setIsSubmitting(false);
+      const fetched = await fetchExpenses(authCtx.token, authCtx.uid);
+      expensesCtx.setExpenses(fetched);
+    } catch (err) {
+      console.error("Refresh error:", err);
     }
+  }
+
+  //Xử lý button(icon trash) Delete
+  function deleteExpenseHandler() {
+    Alert.alert(
+      "Confirm Deletion",
+      "Are you sure you want to delete this expense?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            setIsSubmitting(true);
+            try {
+              await deleteExpense(editedExpenseId, token, uid);
+              expensesCtx.deleteExpense(editedExpenseId);
+              await refreshExpensesHandler();
+              Alert.alert("Deleted", "Expense has been deleted successfully.");
+              navigation.goBack();
+            } catch (error) {
+              Alert.alert(
+                "Error",
+                "Could not delete expense - Please try again later !"
+              );
+              console.log(error);
+              setIsSubmitting(false);
+            }
+          },
+        },
+      ]
+    );
   }
 
   if (error && !isSubmitting) {
@@ -73,13 +106,47 @@ function ManageExpense({ route, navigation }) {
   async function confirmHandler(expenseData) {
     setIsSubmitting(true);
     try {
+      let id = editedExpenseId;
+
       if (isEditing) {
-        expensesCtx.updateExpense(editedExpenseId, expenseData);
         await updateExpense(editedExpenseId, expenseData, token, uid);
+        expensesCtx.update(
+          id,
+          expenseData,
+          async () => {
+            await refreshExpensesHandler();
+
+            Notifications.scheduleNotificationAsync({
+              content: {
+                title: "✏️ Expense Updated",
+                body: "Tap to review or adjust the changes.",
+                data: { id },
+              },
+              trigger: { seconds: 2 },
+            });
+          },
+          expensesCtx.expenses
+        );
       } else {
         const id = await storeExpense(expenseData, token, uid);
-        expensesCtx.addExpense({ ...expenseData, id: id });
+        expenseData.id = id;
+
+        expensesCtx.addExpense(
+          expenseData,
+          () => {
+            Notifications.scheduleNotificationAsync({
+              content: {
+                title: "✅ Expense Saved",
+                body: "Tap to view detail or edit it.",
+                data: { id },
+              },
+              trigger: { seconds: 3 },
+            });
+          },
+          expensesCtx.expenses
+        );
       }
+
       navigation.goBack();
     } catch (error) {
       setError("Could not save expense - Please try again later !");
